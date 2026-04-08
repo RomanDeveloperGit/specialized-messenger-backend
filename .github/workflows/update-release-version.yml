@@ -26,9 +26,9 @@ jobs:
       - name: Create .env.development file
         run: |
           echo "PORT=7070" > .env.development
-          echo "HAS_DOCS=true" > .env.development
-          echo "DATABASE_URL=postgresql://postgres:admin@localhost:5432/specialized-messenger?schema=public" > .env.development
-          echo "PASSWORD_HASH_SALT=5" > .env.development
+          echo "HAS_DOCS=true" >> .env.development
+          echo "DATABASE_URL=postgresql://postgres:admin@localhost:5432/specialized-messenger?schema=public" >> .env.development
+          echo "PASSWORD_HASH_SALT=5" >> .env.development
       - name: Install dependencies
         run: yarn setup:dev
       - name: Check TS and ESLint errors
