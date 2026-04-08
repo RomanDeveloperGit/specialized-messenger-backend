@@ -20,7 +20,7 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
 }
@@ -31,7 +31,20 @@ model User {
   lastName  String
   login     String   @unique
   password  String
-  role      Role     @default(USER)
+  role      UserRole     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Invitation {
+  id        String           @id @default(uuid())
+  firstName String
+  lastName  String
+  status    InvitationStatus @default(PENDING)
+  createdAt DateTime         @default(now())
 }

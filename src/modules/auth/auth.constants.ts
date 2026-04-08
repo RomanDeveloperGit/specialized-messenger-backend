@@ -1,0 +1,1 @@
+export const ERROR_USER_NOT_FOUND = 'ERROR_USER_NOT_FOUND';

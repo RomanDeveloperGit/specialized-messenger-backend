@@ -2,7 +2,7 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 import { Exclude, Expose } from 'class-transformer';
 
-import { Role, User } from '@/shared/modules/generated/prisma/client';
+import { User, UserRole } from '@/shared/modules/generated/prisma/client';
 
 export class AuthorizedUser implements User {
   @Expose()
@@ -23,9 +23,9 @@ export class AuthorizedUser implements User {
 
   @Expose()
   @ApiProperty({
-    enum: Role,
+    enum: UserRole,
   })
-  role: Role;
+  role: UserRole;
 
   @Expose()
   createdAt: Date;

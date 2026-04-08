@@ -3,6 +3,7 @@ import { Response } from 'express';
 
 import { UserService } from '@/modules/user/user.service';
 
+import { ERROR_USER_NOT_FOUND } from './auth.constants';
 import { AuthorizedUser } from './dto/authorized-user.dto';
 import { SignInRequest, SignInResponse } from './dto/sign-in.dto';
 
@@ -15,8 +16,7 @@ export class AuthService {
 
     if (!user) {
       throw new BadRequestException({
-        code: 'ERROR_USER_NOT_FOUND',
-        message: "User doesn't exist with this auth data",
+        code: ERROR_USER_NOT_FOUND,
       });
     }
 
