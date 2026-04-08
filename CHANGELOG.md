@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.0.0...v1.1.0) (2026-04-08)
+
+
+### Features
+
+* **invitation:** add invitation api ([c90962d](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/c90962d1d0955b85c503964be0d1105a115dbdb1))
+
 # 1.0.0 (2026-04-08)
 
 
