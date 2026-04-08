@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.1.0...v1.2.0) (2026-04-08)
+
+
+### Features
+
+* add auth guard ([035b541](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/035b541bb6672935bd41ac8d5394318f9f4947c9))
+
 # [1.1.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.0.0...v1.1.0) (2026-04-08)
 
 
