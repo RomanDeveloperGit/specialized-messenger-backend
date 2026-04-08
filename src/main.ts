@@ -5,7 +5,6 @@ import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
-import cookieParser from 'cookie-parser';
 import * as yaml from 'js-yaml';
 
 import { ConfigService } from '@/shared/modules/config';
@@ -22,7 +21,6 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.use(cookieParser());
   app.enableCors();
 
   if (configService.get('hasDocs')) {
