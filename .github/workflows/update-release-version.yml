@@ -30,9 +30,7 @@ jobs:
           echo "DATABASE_URL=postgresql://postgres:admin@localhost:5432/specialized-messenger?schema=public" > .env.development
           echo "PASSWORD_HASH_SALT=5" > .env.development
       - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          yarn setup
+        run: yarn setup
       - name: Check TS and ESLint errors
         run: |
           yarn ts:check
