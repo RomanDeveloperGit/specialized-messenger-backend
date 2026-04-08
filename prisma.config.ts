@@ -4,7 +4,7 @@ import { defineConfig, env } from 'prisma/config';
 const abc = {};
 
 dotenv.config({
-  // processEnv: abc,
+  processEnv: abc,
   path: `${__dirname}/.env.${process.env.NODE_ENV === 'production' ? 'production' : 'development'}`,
 });
 
