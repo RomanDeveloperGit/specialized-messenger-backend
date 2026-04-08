@@ -25,7 +25,7 @@ async function bootstrap() {
 
   if (configService.get('hasDocs')) {
     const swaggerConfig = new DocumentBuilder()
-      .addBearerAuth()
+      .addBasicAuth()
       .setTitle('Specialized Messenger')
       .setDescription('Backend API docs')
       .setExternalDoc('Prisma entities docs', 'docs/prisma')
