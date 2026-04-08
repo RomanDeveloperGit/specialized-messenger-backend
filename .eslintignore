@@ -1,0 +1,12 @@
+!*.js
+!*.ts
+!**/*.js
+!**/*.ts
+
+dist
+node_modules
+
+src/shared/modules/generated
+
+.eslintrc.js
+commitlint.config.js

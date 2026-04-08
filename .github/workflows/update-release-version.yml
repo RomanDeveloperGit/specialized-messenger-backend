@@ -1,0 +1,44 @@
+name: Update release version
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  update-release-version:
+    name: Update release version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.6"
+          cache: yarn
+      - name: Create .env.development file
+        run: |
+          echo "PORT=7070" > .env.development
+          echo "HAS_DOCS=true" > .env.development
+          echo "DATABASE_URL=postgresql://postgres:admin@localhost:5432/specialized-messenger?schema=public" > .env.development
+          echo "PASSWORD_HASH_SALT=5" > .env.development
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          yarn setup
+      - name: Check TS and ESLint errors
+        run: |
+          yarn ts:check
+          yarn lint:check
+      - name: Commit the release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx semantic-release
+        # TODO: билд и запуск в прод режиме добавить, чтобы проблемы выявить?
