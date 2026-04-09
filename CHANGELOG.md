@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.4.0...v1.5.0) (2026-04-09)
+
+
+### Features
+
+* add web sockets ([b2c920c](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/b2c920c38042866324d0e6319cf18abeab167962))
+
 # [1.4.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.3.0...v1.4.0) (2026-04-09)
 
 
