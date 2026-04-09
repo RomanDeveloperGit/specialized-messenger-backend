@@ -1,5 +1,8 @@
 pre-commit:
   jobs:
+    # Если ругается на нехватку прав, то сделайте:
+    # chmod +x .lefthook/pre-commit/check_unpulled.sh
+    - run: .lefthook/pre-commit/check_unpulled.sh
     - run: |
         npx eslint {staged_files} --fix && \
         npx prettier --write {staged_files}
