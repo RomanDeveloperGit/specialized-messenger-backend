@@ -8,6 +8,7 @@ import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as yaml from 'js-yaml';
 
 import { ConfigService } from '@/shared/modules/config';
+import { WSAdapter } from '@/shared/modules/ws';
 
 import { AppModule } from './app.module';
 
@@ -21,7 +22,10 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.enableCors();
+  app.enableCors({
+    origin: configService.get('consumerOrigin'),
+    credentials: false,
+  });
 
   if (configService.get('hasDocs')) {
     const swaggerConfig = new DocumentBuilder()
@@ -45,7 +49,9 @@ async function bootstrap() {
 
   // TODO: Хот релоад аксепт добавить в нест
 
-  await app.listen(configService.get('port'));
+  app.useWebSocketAdapter(new WSAdapter(app, configService));
+
+  await app.listen(configService.get('httpPort'));
 }
 
 bootstrap();

@@ -1,8 +1,8 @@
 export interface Config {
-  port: number;
+  httpPort: number;
+  wsPort: number;
+  consumerOrigin: string;
   hasDocs: boolean;
-
   databaseUrl: string;
-
   passwordHashSalt: number;
 }
