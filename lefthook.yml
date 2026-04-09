@@ -6,12 +6,11 @@ pre-commit:
     - run: |
         npx eslint {staged_files} --fix && \
         npx prettier --write {staged_files}
-      glob: "**/*.{ts,tsx,js,jsx}"
+      glob: '**/*.{ts,tsx,js,jsx}'
       stage_fixed: true
     - run: npx eslint {staged_files}
-      glob: "**/*.{ts,tsx,js,jsx}"
+      glob: '**/*.{ts,tsx,js,jsx}'
 
 commit-msg:
   jobs:
     - run: yarn run commitlint --edit {1}
-      
