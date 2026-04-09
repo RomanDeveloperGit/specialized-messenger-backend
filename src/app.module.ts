@@ -3,12 +3,13 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 import { AuthModule } from '@/modules/auth/auth.module';
 import { InvitationModule } from '@/modules/invitation/invitation.module';
+import { UserModule } from '@/modules/user/user.module';
 
 import { ConfigModule } from '@/shared/modules/config';
 import { PrismaModule } from '@/shared/modules/prisma';
 
 @Module({
-  imports: [ConfigModule, PrismaModule, AuthModule, InvitationModule],
+  imports: [ConfigModule, PrismaModule, UserModule, AuthModule, InvitationModule],
   providers: [
     {
       provide: APP_PIPE,

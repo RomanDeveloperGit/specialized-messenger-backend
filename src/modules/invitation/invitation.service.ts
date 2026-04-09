@@ -7,6 +7,7 @@ import { PrismaService } from '@/shared/modules/prisma';
 
 import { ApplyInvitationRequest } from './dto/apply-invitation.dto';
 import { CreateInvitationRequest } from './dto/create-invitation.dto';
+import { Invitation } from './dto/invitation.dto';
 import { ERROR_INVITATION_NOT_FOUND, ERROR_INVITATION_NOT_PENDING } from './invitation.constants';
 
 @Injectable()
@@ -16,13 +17,15 @@ export class InvitationService {
     private userService: UserService,
   ) {}
 
-  async create(data: CreateInvitationRequest) {
-    return await this.prismaService.invitation.create({
+  async create(data: CreateInvitationRequest): Promise<Invitation> {
+    const invitation = await this.prismaService.invitation.create({
       data,
     });
+
+    return new Invitation(invitation);
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<Invitation> {
     const invitation = await this.prismaService.invitation.findUnique({
       where: {
         id,
@@ -35,10 +38,10 @@ export class InvitationService {
       });
     }
 
-    return invitation;
+    return new Invitation(invitation);
   }
 
-  async apply(id: string, data: ApplyInvitationRequest) {
+  async apply(id: string, data: ApplyInvitationRequest): Promise<void> {
     const invitation = await this.prismaService.invitation.findUnique({
       where: {
         id,

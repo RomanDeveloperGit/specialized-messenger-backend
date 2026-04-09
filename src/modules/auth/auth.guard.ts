@@ -38,7 +38,7 @@ class RawAuthGuard implements CanActivate {
 
     const { login, password } = this.parseCredentials(authHeader);
 
-    const user = await this.userService.getUserByCredentials({ login, password });
+    const user = await this.userService.getByCredentials({ login, password });
 
     if (!user) {
       throw new UnauthorizedException();

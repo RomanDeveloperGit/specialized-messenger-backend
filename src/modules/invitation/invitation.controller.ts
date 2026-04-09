@@ -10,8 +10,8 @@ import { InvitationService } from './invitation.service';
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
-  @AuthGuard({ checkAdminRole: true })
   @Post()
+  @AuthGuard({ checkAdminRole: true })
   async create(@Body() data: CreateInvitationRequest) {
     return await this.invitationService.create(data);
   }

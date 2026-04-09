@@ -3,11 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
 
 import { ConfigService } from '@/shared/modules/config';
-import { User } from '@/shared/modules/generated/prisma/client';
 import { PrismaService } from '@/shared/modules/prisma';
 
 import { CreateUserRequest } from './dto/create-user.dto';
 import { GetUserByCredentialsRequest } from './dto/get-user-by-credentials.dto';
+import { User } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -25,10 +25,10 @@ export class UserService {
       },
     });
 
-    return user;
+    return new User(user);
   }
 
-  async getUserByCredentials(data: GetUserByCredentialsRequest): Promise<User | null> {
+  async getByCredentials(data: GetUserByCredentialsRequest): Promise<User | null> {
     const user = await this.prismaService.user.findFirst({
       where: {
         login: data.login,
@@ -39,6 +39,12 @@ export class UserService {
 
     const isPasswordCorrect = await compare(data.password, user.password);
 
-    return isPasswordCorrect ? user : null;
+    return isPasswordCorrect ? new User(user) : null;
+  }
+
+  async getAll(): Promise<User[]> {
+    const users = await this.prismaService.user.findMany();
+
+    return users.map((user) => new User(user));
   }
 }
