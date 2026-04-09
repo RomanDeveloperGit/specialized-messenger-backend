@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
+import { AuthGuard } from '@/modules/auth/auth.guard';
+
 import { ApplyInvitationRequest } from './dto/apply-invitation.dto';
 import { CreateInvitationRequest } from './dto/create-invitation.dto';
 import { InvitationService } from './invitation.service';
@@ -8,6 +10,7 @@ import { InvitationService } from './invitation.service';
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
+  @AuthGuard({ checkAdminRole: true })
   @Post()
   async create(@Body() data: CreateInvitationRequest) {
     return await this.invitationService.create(data);

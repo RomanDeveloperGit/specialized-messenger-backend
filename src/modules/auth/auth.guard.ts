@@ -3,17 +3,30 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  SetMetadata,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { UserService } from '@/modules/user/user.service';
 
+import { UserRole } from '@/shared/modules/generated/prisma/enums';
+
+interface AuthGuardOptions {
+  checkAdminRole?: boolean;
+}
+
+const AUTH_GUARD_OPTIONS_KEY = 'authGuardOptions';
+
 @Injectable()
 class RawAuthGuard implements CanActivate {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -23,11 +36,24 @@ class RawAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const { login, password } = this.parseCredentials(authHeader.toString());
+    const { login, password } = this.parseCredentials(authHeader);
 
     const user = await this.userService.getUserByCredentials({ login, password });
 
-    return !!user;
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const options = this.reflector.get<AuthGuardOptions>(
+      AUTH_GUARD_OPTIONS_KEY,
+      context.getHandler(),
+    );
+
+    if (options?.checkAdminRole && user.role !== UserRole.ADMIN) {
+      throw new UnauthorizedException('Admin role required');
+    }
+
+    return true;
   }
 
   private parseCredentials(rawHeader: string): {
@@ -48,6 +74,10 @@ class RawAuthGuard implements CanActivate {
   }
 }
 
-export function AuthGuard() {
-  return applyDecorators(ApiBasicAuth(), UseGuards(RawAuthGuard));
+export function AuthGuard(options: AuthGuardOptions = {}) {
+  return applyDecorators(
+    SetMetadata(AUTH_GUARD_OPTIONS_KEY, options),
+    ApiBasicAuth(),
+    UseGuards(RawAuthGuard),
+  );
 }
