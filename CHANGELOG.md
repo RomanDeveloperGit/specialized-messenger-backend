@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.3.0...v1.4.0) (2026-04-09)
+
+
+### Features
+
+* **user:** add endpoint for getting all users ([ce7e0c6](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/ce7e0c6286d3efa468069f181d1eaa0ac2f9233d))
+
 # [1.3.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.2.0...v1.3.0) (2026-04-09)
 
 
