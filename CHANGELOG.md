@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.2.0...v1.3.0) (2026-04-09)
+
+
+### Features
+
+* add admin guard ([539b027](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/539b02767b25543eeeae2d70542df8df03ff2a6d))
+
 # [1.2.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.1.0...v1.2.0) (2026-04-08)
 
 
