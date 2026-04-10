@@ -1,10 +1,10 @@
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 import { User as _User, UserRole } from '@/shared/modules/generated/prisma/client';
 
-export class User implements _User {
+export class User implements Omit<_User, 'password'> {
   @Expose()
   id: number;
 
@@ -16,10 +16,6 @@ export class User implements _User {
 
   @Expose()
   login: string;
-
-  @Exclude()
-  @ApiHideProperty()
-  password: never;
 
   @Expose()
   @ApiProperty({
@@ -33,7 +29,8 @@ export class User implements _User {
   @Expose()
   updatedAt: Date;
 
-  constructor(user: _User) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor({ password, ...user }: _User) {
     Object.assign(this, user);
   }
 }

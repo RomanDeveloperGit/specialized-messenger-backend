@@ -53,6 +53,8 @@ class RawAuthGuard implements CanActivate {
       throw new UnauthorizedException('Admin role required');
     }
 
+    (request as AuthorizedRequest).user = user;
+
     return true;
   }
 
