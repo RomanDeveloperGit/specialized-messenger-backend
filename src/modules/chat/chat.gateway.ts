@@ -1,10 +1,4 @@
-import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
 
@@ -36,12 +30,12 @@ export class ChatGateway {
     }
 
     (client as AuthorizedSocket).data.user = user;
+
+    console.log('connect', client.data);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(@ConnectedSocket() client: AuthorizedSocket, @MessageBody() message: string): void {
-    console.log(client.data.user, message);
-
-    this.server.emit('message', message);
+  async handleDisconnect(client: AuthorizedSocket) {
+    // TODO: update last seen date
+    console.log('disconnect', client.data);
   }
 }
