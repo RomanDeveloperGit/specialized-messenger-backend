@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.5.0...v1.5.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* add authed user property in request object ([021f07b](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/021f07bb976584e3944ef662aaf86757d8eeb112))
+
 # [1.5.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.4.0...v1.5.0) (2026-04-09)
 
 
