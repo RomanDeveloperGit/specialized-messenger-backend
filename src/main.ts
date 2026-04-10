@@ -13,7 +13,7 @@ import { WSAdapter } from '@/shared/modules/ws';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
