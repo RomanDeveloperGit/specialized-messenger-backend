@@ -13,7 +13,7 @@ import { WSAdapter } from '@/shared/modules/ws';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
@@ -24,7 +24,6 @@ async function bootstrap() {
 
   app.enableCors({
     origin: configService.get('consumerOrigin'),
-    credentials: false,
   });
 
   if (configService.get('hasDocs')) {

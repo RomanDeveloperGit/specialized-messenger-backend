@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { Expose } from 'class-transformer';
 
 import {
@@ -16,6 +18,9 @@ export class Invitation implements _Invitation {
   lastName: string;
 
   @Expose()
+  @ApiProperty({
+    enum: InvitationStatus,
+  })
   status: InvitationStatus;
 
   @Expose()

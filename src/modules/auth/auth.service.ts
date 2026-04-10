@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Response } from 'express';
 
 import { User } from '@/modules/user/dto/user.dto';
 import { UserService } from '@/modules/user/user.service';
@@ -11,7 +10,7 @@ import { SignInRequest } from './dto/sign-in.dto';
 export class AuthService {
   constructor(private userService: UserService) {}
 
-  async signIn(response: Response, data: SignInRequest): Promise<User> {
+  async signIn(data: SignInRequest): Promise<User> {
     const user = await this.userService.getByCredentials(data);
 
     if (!user) {

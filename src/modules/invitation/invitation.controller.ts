@@ -6,7 +6,7 @@ import { ApplyInvitationRequest } from './dto/apply-invitation.dto';
 import { CreateInvitationRequest } from './dto/create-invitation.dto';
 import { InvitationService } from './invitation.service';
 
-@Controller('invitation')
+@Controller('invitations')
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
