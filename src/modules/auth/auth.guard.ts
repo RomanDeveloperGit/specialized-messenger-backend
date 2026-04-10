@@ -2,6 +2,7 @@ import {
   applyDecorators,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   SetMetadata,
   UnauthorizedException,
@@ -41,7 +42,7 @@ class RawAuthGuard implements CanActivate {
     const user = await this.userService.getByCredentials({ login, password });
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
 
     const options = this.reflector.get<AuthGuardOptions>(
@@ -50,7 +51,7 @@ class RawAuthGuard implements CanActivate {
     );
 
     if (options?.checkAdminRole && user.role !== UserRole.ADMIN) {
-      throw new UnauthorizedException('Admin role required');
+      throw new ForbiddenException('Admin role required');
     }
 
     (request as AuthorizedRequest).user = user;
