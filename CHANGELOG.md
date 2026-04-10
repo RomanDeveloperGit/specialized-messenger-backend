@@ -1,3 +1,11 @@
+## [1.5.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.5.1...v1.5.2) (2026-04-10)
+
+
+### Bug Fixes
+
+* **auth/guard:** add forbidden exceptions ([d74fddc](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/d74fddcb92fb0e212c80470c4b8cc11d5342602d))
+* **main:** enable cors ([7573c92](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/7573c92dabd1d4317adeb47804d375e15732c54e))
+
 ## [1.5.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.5.0...v1.5.1) (2026-04-10)
 
 
