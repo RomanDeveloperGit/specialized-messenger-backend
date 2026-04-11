@@ -1,6 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-import { ConversationId } from './conversation.dto';
+import { ConversationId } from './types.dto';
 
 export class GetConversationByIdParams {
   @IsUUID()

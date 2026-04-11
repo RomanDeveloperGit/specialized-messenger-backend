@@ -1,8 +1,9 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-import { Conversation, ConversationId } from './conversation.dto';
+import { Conversation } from './conversation.dto';
 import { Message } from './message.dto';
+import { ConversationId } from './types.dto';
 
 export class FromClientJoinConversationEventBody {
   @IsUUID()

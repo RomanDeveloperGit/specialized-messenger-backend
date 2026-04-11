@@ -10,10 +10,11 @@ import {
   ERROR_INVALID_PARTICIPANTS,
   MIN_PRELOADED_MESSAGES_COUNT,
 } from './chat.constants';
-import { Conversation, ConversationId } from './dto/conversation.dto';
+import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
 import { CreateMessageRequest } from './dto/create-message.dto';
 import { Message } from './dto/message.dto';
+import { ConversationId } from './dto/types.dto';
 
 @Injectable()
 export class ChatService {

@@ -13,6 +13,7 @@ import {
 
 import { ConversationParticipant } from './conversation-participant.dto';
 import { Message } from './message.dto';
+import { ConversationId } from './types.dto';
 
 const conversationInclude = {
   participants: {
@@ -26,8 +27,6 @@ const conversationInclude = {
 type PopulatedConversation = ConversationGetPayload<{
   include: typeof conversationInclude;
 }>;
-
-export type ConversationId = _Conversation['id'];
 
 export class Conversation implements _Conversation {
   @Expose()

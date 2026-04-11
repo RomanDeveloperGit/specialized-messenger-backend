@@ -13,7 +13,7 @@ import {
   ConversationParticipantInclude,
 } from '@/shared/modules/generated/prisma/models';
 
-import { ConversationId } from './conversation.dto';
+import { ConversationId, ConversationParticipantId } from './types.dto';
 
 const conversationParticipantInclude = {
   user: true,
@@ -22,8 +22,6 @@ const conversationParticipantInclude = {
 type PopulatedConversationParticipant = ConversationParticipantGetPayload<{
   include: typeof conversationParticipantInclude;
 }>;
-
-export type ConversationParticipantId = _ConversationParticipant['id'];
 
 export class ConversationParticipant implements _ConversationParticipant {
   @Expose()

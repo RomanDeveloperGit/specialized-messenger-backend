@@ -4,9 +4,7 @@ import { UserId } from '@/modules/user/dto/user.dto';
 
 import { Message as _Message } from '@/shared/modules/generated/prisma/client';
 
-import { ConversationId } from './conversation.dto';
-
-export type MessageId = _Message['id'];
+import { ConversationId, MessageId } from './types.dto';
 
 export class Message implements _Message {
   @Expose()
