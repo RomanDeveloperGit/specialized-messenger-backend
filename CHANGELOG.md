@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.1...v1.7.2) (2026-04-11)
+
+
+### Bug Fixes
+
+* **chat:** fix message's body for updating conversation list ([a55510c](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/a55510c642502e28925faf9022cb98b21cd12ce6))
+
 ## [1.7.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.0...v1.7.1) (2026-04-11)
 
 
