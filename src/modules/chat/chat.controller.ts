@@ -4,6 +4,7 @@ import { AuthGuard } from '@/modules/auth/auth.guard';
 
 import { ChatService } from './chat.service';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
+import { GetConversationByIdParams } from './dto/get-conversation-by-id.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -12,18 +13,21 @@ export class ChatController {
   @Post('conversations')
   @AuthGuard({ checkAdminRole: true }) // TODO: разрешить всем авторизованным
   async createConversation(@Req() req: AuthorizedRequest, @Body() data: CreateConversationRequest) {
-    return await this.chatService.createConversation(req, data);
+    return await this.chatService.createConversation(req.user.id, data);
   }
 
   @Get('conversations')
   @AuthGuard()
-  async getConversationsByUserId(@Req() req: AuthorizedRequest) {
-    return await this.chatService.getConversationsByUserId(req);
+  async getConversations(@Req() req: AuthorizedRequest) {
+    return await this.chatService.getConversations(req.user.id);
   }
 
   @Get('conversations/:id')
   @AuthGuard()
-  async getConversationById(@Req() req: AuthorizedRequest, @Param('id') id: string) {
-    return await this.chatService.getConversationById(req, id);
+  async getConversationById(
+    @Req() req: AuthorizedRequest,
+    @Param() { id: conversationId }: GetConversationByIdParams,
+  ) {
+    return await this.chatService.getConversationById(conversationId, req.user.id);
   }
 }

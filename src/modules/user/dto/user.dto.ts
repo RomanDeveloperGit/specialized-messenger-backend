@@ -4,9 +4,11 @@ import { Expose } from 'class-transformer';
 
 import { User as _User, UserRole } from '@/shared/modules/generated/prisma/client';
 
+export type UserId = _User['id'];
+
 export class User implements Omit<_User, 'password'> {
   @Expose()
-  id: number;
+  id: UserId;
 
   @Expose()
   firstName: string;

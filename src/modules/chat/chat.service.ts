@@ -1,35 +1,34 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { UserService } from '@/modules/user/user.service';
+import { UserId } from '@/modules/user/dto/user.dto';
 
 import { ConversationType, ParticipantRole } from '@/shared/modules/generated/prisma/client';
 import { PrismaService } from '@/shared/modules/prisma';
 
 import {
-  CONVERSATIONS_PER_PAGE,
   ERROR_CONVERSATION_NOT_FOUND,
   ERROR_INVALID_PARTICIPANTS,
+  MIN_PRELOADED_MESSAGES_COUNT,
 } from './chat.constants';
-import { Conversation } from './dto/conversation.dto';
+import { Conversation, ConversationId } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
+import { CreateMessageRequest } from './dto/create-message.dto';
+import { Message } from './dto/message.dto';
 
 @Injectable()
 export class ChatService {
-  constructor(
-    private prismaService: PrismaService,
-    private userService: UserService,
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   async createConversation(
-    request: AuthorizedRequest,
-    { participantIds, ...conversationData }: CreateConversationRequest,
+    userId: UserId,
+    { participantUserIds, ...conversationData }: CreateConversationRequest,
   ): Promise<Conversation> {
     return await this.prismaService.$transaction(async (tx) => {
-      const filteredParticipantIds = participantIds.filter((id) => id !== request.user.id);
+      const filteredParticipantUserIds = participantUserIds.filter((id) => id !== userId);
 
       if (
-        filteredParticipantIds.length === 0 ||
-        (filteredParticipantIds.length > 1 && conversationData.type === ConversationType.DIRECT)
+        filteredParticipantUserIds.length === 0 ||
+        (filteredParticipantUserIds.length > 1 && conversationData.type === ConversationType.DIRECT)
       ) {
         throw new BadRequestException({
           code: ERROR_INVALID_PARTICIPANTS,
@@ -39,27 +38,27 @@ export class ChatService {
       const checkedParticipants = await this.prismaService.user.findMany({
         where: {
           id: {
-            in: filteredParticipantIds,
+            in: filteredParticipantUserIds,
           },
         },
       });
 
-      if (checkedParticipants.length !== filteredParticipantIds.length) {
+      if (checkedParticipants.length !== filteredParticipantUserIds.length) {
         throw new BadRequestException({
           code: ERROR_INVALID_PARTICIPANTS,
         });
       }
 
-      const allParticipantIds = [request.user.id, ...filteredParticipantIds];
+      const allParticipantUserIds = [userId, ...filteredParticipantUserIds];
 
       const conversation = await tx.conversation.create({
         data: {
           ...conversationData,
           name: conversationData.type === ConversationType.DIRECT ? null : conversationData.name,
           participants: {
-            create: allParticipantIds.map((userId) => ({
-              userId,
-              role: userId === request.user.id ? ParticipantRole.OWNER : ParticipantRole.MEMBER,
+            create: allParticipantUserIds.map((participantUserId) => ({
+              userId: participantUserId,
+              role: participantUserId === userId ? ParticipantRole.OWNER : ParticipantRole.MEMBER,
             })),
           },
         },
@@ -77,12 +76,12 @@ export class ChatService {
     });
   }
 
-  async getConversationsByUserId(req: AuthorizedRequest): Promise<Conversation[]> {
+  async getConversations(userId: UserId): Promise<Conversation[]> {
     const conversations = await this.prismaService.conversation.findMany({
       where: {
         participants: {
           some: {
-            userId: req.user.id,
+            userId,
           },
         },
       },
@@ -96,7 +95,7 @@ export class ChatService {
           orderBy: {
             createdAt: 'desc',
           },
-          take: CONVERSATIONS_PER_PAGE,
+          take: MIN_PRELOADED_MESSAGES_COUNT,
         },
       },
     });
@@ -110,13 +109,13 @@ export class ChatService {
     );
   }
 
-  async getConversationById(req: AuthorizedRequest, id: string): Promise<Conversation> {
+  async getConversationById(conversationId: ConversationId, userId: UserId): Promise<Conversation> {
     const conversation = await this.prismaService.conversation.findUnique({
       where: {
-        id,
+        id: conversationId,
         participants: {
           some: {
-            userId: req.user.id,
+            userId,
           },
         },
       },
@@ -137,5 +136,26 @@ export class ChatService {
     }
 
     return new Conversation(conversation);
+  }
+
+  async getUserIdsByConversationId(conversationId: ConversationId): Promise<number[]> {
+    const conversationParticipants = await this.prismaService.conversationParticipant.findMany({
+      where: {
+        conversationId,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    return conversationParticipants.map(({ userId }) => userId);
+  }
+
+  async createMessage(data: CreateMessageRequest): Promise<Message> {
+    const message = await this.prismaService.message.create({
+      data,
+    });
+
+    return new Message(message);
   }
 }

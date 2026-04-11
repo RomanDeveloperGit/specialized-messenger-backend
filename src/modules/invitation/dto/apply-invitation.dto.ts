@@ -1,4 +1,11 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, IsUUID, MinLength } from 'class-validator';
+
+import { InvitationId } from './invitation.dto';
+
+export class ApplyInvitationParams {
+  @IsUUID()
+  id: InvitationId;
+}
 
 export class ApplyInvitationRequest {
   @IsString()

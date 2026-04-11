@@ -1,15 +1,36 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+  WsException,
+} from '@nestjs/websockets';
 
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 
 import { UserService } from '@/modules/user/user.service';
 
+import {
+  WS_CONVERSATION_ROOM_PREFIX,
+  WS_PERSONAL_USER_ROOM_PREFIX,
+  WSClientToServerEventsKeys,
+} from './chat.constants';
+import { AuthorizedSocketGuard, RoomedSocketGuard } from './chat.guard';
+import { ChatService } from './chat.service';
+import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
+
+@UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
 @WebSocketGateway()
 export class ChatGateway {
   @WebSocketServer()
-  server: Server;
+  server: WSTypedServer;
 
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly chatService: ChatService,
+  ) {}
 
   async handleConnection(client: Socket) {
     const { login, password } = client.handshake.auth;
@@ -31,11 +52,85 @@ export class ChatGateway {
 
     (client as AuthorizedSocket).data.user = user;
 
-    console.log('connect', client.data);
+    // Присоединяем сокет в персональную комнату пользователя
+    client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${user.id}`);
   }
 
-  async handleDisconnect(client: AuthorizedSocket) {
-    // TODO: update last seen date
-    console.log('disconnect', client.data);
+  // // TODO: update last seen date
+  // async handleDisconnect(client: AuthorizedSocket) {}
+
+  @UseGuards(AuthorizedSocketGuard)
+  @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.join')
+  async handleJoinConversation(
+    @ConnectedSocket() client: AuthorizedSocket,
+    @MessageBody() { conversationId }: FromClientJoinConversationEventBody,
+  ) {
+    const userId = client.data.user.id;
+
+    let conversation;
+
+    try {
+      conversation = await this.chatService.getConversationById(conversationId, userId);
+    } catch {
+      client.emit('from-server:error'); // TODO: реакция фронта - выкинуть из открытого чата на главную страницу списка чатов
+
+      return;
+    }
+
+    for (const room of client.rooms) {
+      if (room.startsWith(`${WS_CONVERSATION_ROOM_PREFIX}:`)) {
+        client.leave(room);
+      }
+    }
+
+    (client as RoomedSocket).data.currentConversation = {
+      id: conversation.id,
+      participants: conversation.participants,
+    };
+
+    client.join(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`);
   }
+
+  @UseGuards(RoomedSocketGuard)
+  @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.leave')
+  handleLeaveConversation(@ConnectedSocket() client: RoomedSocket) {
+    client.leave(`${WS_CONVERSATION_ROOM_PREFIX}:${client.data.currentConversation.id}`);
+
+    delete (client as any).data.currentConversation;
+  }
+
+  @UseGuards(RoomedSocketGuard)
+  @SubscribeMessage<WSClientToServerEventsKeys>('from-client:message.new')
+  async handleSendMessage(
+    @ConnectedSocket() client: RoomedSocket,
+    @MessageBody() { content }: FromClientSendMessageEventBody,
+  ) {
+    const userId = client.data.user.id;
+    const conversationId = client.data.currentConversation.id;
+
+    const message = await this.chatService.createMessage({
+      conversationId,
+      userId,
+      content,
+    });
+
+    this.server
+      .to(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`)
+      .emit('from-server:message.new', {
+        message,
+      });
+
+    // TODO: оптимизировать потом так, чтобы не весь список обновлять, а лишь конкретный чат, догружая его новыми минимальными данными (т.к. ранее уже было получено минимальное необходимое количество данных)
+    const conversations = await this.chatService.getConversations(userId);
+
+    client.data.currentConversation.participants.forEach((participant) => {
+      this.server
+        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
+        .emit('from-server:conversations.update', {
+          conversations,
+        });
+    });
+  }
+
+  // TODO: при обновлении participants обновлять их и каждого client в data.currentConversation
 }

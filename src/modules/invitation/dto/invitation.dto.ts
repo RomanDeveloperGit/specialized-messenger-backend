@@ -7,9 +7,11 @@ import {
   InvitationStatus,
 } from '@/shared/modules/generated/prisma/client';
 
+export type InvitationId = _Invitation['id'];
+
 export class Invitation implements _Invitation {
   @Expose()
-  id: string;
+  id: InvitationId;
 
   @Expose()
   firstName: string;

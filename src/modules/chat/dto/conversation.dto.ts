@@ -27,9 +27,11 @@ type PopulatedConversation = ConversationGetPayload<{
   include: typeof conversationInclude;
 }>;
 
+export type ConversationId = _Conversation['id'];
+
 export class Conversation implements _Conversation {
   @Expose()
-  id: string;
+  id: ConversationId;
 
   @Expose()
   name: string | null;

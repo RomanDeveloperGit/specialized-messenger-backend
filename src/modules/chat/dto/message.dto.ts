@@ -1,16 +1,22 @@
 import { Expose } from 'class-transformer';
 
+import { UserId } from '@/modules/user/dto/user.dto';
+
 import { Message as _Message } from '@/shared/modules/generated/prisma/client';
+
+import { ConversationId } from './conversation.dto';
+
+export type MessageId = _Message['id'];
 
 export class Message implements _Message {
   @Expose()
-  id: string;
+  id: MessageId;
 
   @Expose()
-  conversationId: string;
+  conversationId: ConversationId;
 
   @Expose()
-  userId: number;
+  userId: UserId;
 
   @Expose()
   content: string;

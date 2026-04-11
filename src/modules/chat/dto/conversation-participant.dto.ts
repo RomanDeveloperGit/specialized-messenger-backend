@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
-import { User } from '@/modules/user/dto/user.dto';
+import { User, UserId } from '@/modules/user/dto/user.dto';
 
 import {
   ConversationParticipant as _ConversationParticipant,
@@ -13,6 +13,8 @@ import {
   ConversationParticipantInclude,
 } from '@/shared/modules/generated/prisma/models';
 
+import { ConversationId } from './conversation.dto';
+
 const conversationParticipantInclude = {
   user: true,
 } satisfies ConversationParticipantInclude;
@@ -21,15 +23,17 @@ type PopulatedConversationParticipant = ConversationParticipantGetPayload<{
   include: typeof conversationParticipantInclude;
 }>;
 
+export type ConversationParticipantId = _ConversationParticipant['id'];
+
 export class ConversationParticipant implements _ConversationParticipant {
   @Expose()
-  id: number;
+  id: ConversationParticipantId;
 
   @Expose()
-  conversationId: string;
+  conversationId: ConversationId;
 
   @Expose()
-  userId: number;
+  userId: UserId;
 
   @Expose()
   @ApiProperty({

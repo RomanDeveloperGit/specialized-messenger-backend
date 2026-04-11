@@ -16,5 +16,5 @@ export class CreateConversationRequest {
 
   @IsArray()
   @IsNumber({}, { each: true })
-  participantIds: number[];
+  participantUserIds: number[];
 }
