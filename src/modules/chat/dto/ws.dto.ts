@@ -1,7 +1,6 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-import { Conversation } from './conversation.dto';
 import { Message } from './message.dto';
 import { ConversationId } from './types.dto';
 
@@ -22,5 +21,6 @@ export interface FromServerNewMessageEventBody {
 }
 
 export interface FromServerConversationsUpdateEventBody {
-  conversations: Conversation[];
+  conversationId: ConversationId;
+  message: Message;
 }

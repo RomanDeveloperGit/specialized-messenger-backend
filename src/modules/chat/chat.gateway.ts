@@ -120,17 +120,15 @@ export class ChatGateway {
         message,
       });
 
-    // TODO: оптимизировать потом так, чтобы не весь список обновлять, а лишь конкретный чат, догружая его новыми минимальными данными (т.к. ранее уже было получено минимальное необходимое количество данных)
-    const conversations = await this.chatService.getConversations(userId);
-
     client.data.currentConversation.participants.forEach((participant) => {
       this.server
         .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
         .emit('from-server:conversations.update', {
-          conversations,
+          conversationId,
+          message,
         });
     });
   }
 
-  // TODO: при обновлении participants обновлять их и каждого client в data.currentConversation
+  // TODO: при обновлении participants обновлять их в data.currentConversation у каждого client, который является участником чата
 }
