@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.0...v1.7.1) (2026-04-11)
+
+
+### Bug Fixes
+
+* fix circular dependencies ([a7447f5](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/a7447f5dce6c9e02a463d1c730b0744d66b3dfa4))
+
 # [1.7.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.6.0...v1.7.0) (2026-04-11)
 
 
