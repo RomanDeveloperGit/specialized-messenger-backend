@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.6.0...v1.7.0) (2026-04-11)
+
+
+### Features
+
+* add chat api ([3825898](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/3825898862c598a011c241b6d6baa8bd68aa8627))
+
 # [1.6.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.5.2...v1.6.0) (2026-04-10)
 
 
