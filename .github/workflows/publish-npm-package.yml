@@ -1,4 +1,4 @@
-name: Build and attach artifact to release
+name: Build and publish npm package
 
 permissions:
   contents: write
@@ -8,23 +8,22 @@ on:
     types: [published]
 
 jobs:
-  build-and-upload:
-    name: Build and upload artifact
+  build-and-publish:
+    name: Build and publish npm package
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.6' # TODO: up
+          node-version: '20.19.6'
           cache: yarn
-      - name: Create .env.production file
+      - name: Prepare environment file
         run: cp .env.example .env.production
-      - name: Install dependencies and generate prisma
+      - name: Install dependencies and generate Prisma client
         run: yarn setup:prod
       - name: Build project
         run: yarn build
@@ -33,22 +32,22 @@ jobs:
       - name: Wait for server to be ready
         run: |
           for i in $(seq 1 30); do
-            curl -s http://localhost:7070/docs-json > /dev/null && echo "Server is up!" && break
-            echo "Attempt $i, retrying in 2s..."
+            if curl -s http://localhost:7070/docs-json > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Attempt $i: server not ready yet, retrying in 2s..."
             sleep 2
           done
-
       - name: Generate TypeScript types from OpenAPI
         run: |
-          mkdir -p npm-package
+          mkdir -p npm-package/api
           npx openapi-typescript http://localhost:7070/docs-json --output npm-package/api/types.ts
-
-      - name: Copy constants
+      - name: Copy constants to npm package
         run: |
           mkdir -p npm-package/constants
           cp src/modules/{chat/chat,auth/auth,invitation/invitation}.constants.ts npm-package/constants/
-
-      - name: Create package.json
+      - name: Create package.json for npm package
         run: |
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
@@ -57,14 +56,12 @@ jobs:
             "name": "@types/specialized-messenger-backend",
             "version": "${VERSION}",
             "description": "Auto-generated API types and constants",
-            "files": ["api/", "constants/"]
+            "files": ["api/", "constants/"],
+            "license": "MIT"
           }
           EOF
-
-      - name: Pack into tar.gz
-        run: tar -czf specialized-messenger-backend-types.tar.gz -C npm-package .
-
-      - name: Upload to release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: specialized-messenger-backend-types.tar.gz
+      - name: Publish package to npm
+        working-directory: npm-package
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

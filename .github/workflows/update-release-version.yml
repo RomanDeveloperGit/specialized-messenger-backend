@@ -14,25 +14,24 @@ jobs:
     name: Update release version
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.6' # TODO: up
+          node-version: '20.19.6'
           cache: yarn
-      - name: Create .env.development file
-        run: cp .env.example .env.development
-      - name: Install dependencies and generate prisma
-        run: yarn setup:dev
-      - name: Check TS and ESLint errors
+      - name: Prepare production environment
+        run: cp .env.example .env.production
+      - name: Install dependencies and generate Prisma client
+        run: yarn setup:prod
+      - name: Run TypeScript and ESLint checks
         run: |
           yarn ts:check
           yarn lint:check
-      - name: Commit the release
+      - name: Update release version with semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
-        # TODO: билд и запуск в прод режиме добавить, чтобы проблемы выявить?
