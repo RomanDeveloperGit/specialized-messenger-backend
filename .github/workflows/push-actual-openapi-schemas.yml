@@ -62,9 +62,9 @@ jobs:
           EOF
 
       - name: Pack into tar.gz
-        run: tar -czf api-types.tar.gz -C npm-package .
+        run: tar -czf specialized-messenger-backend-types.tar.gz -C npm-package .
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: api-types.tar.gz
+          files: specialized-messenger-backend-types.tar.gz
