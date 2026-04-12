@@ -54,7 +54,7 @@ jobs:
           VERSION="${VERSION#v}"
           cat > npm-package/package.json << EOF
           {
-            "name": "@types/specialized-messenger-backend",
+            "name": "specialized-messenger-backend",
             "version": "${VERSION}",
             "description": "Auto-generated API types and constants",
             "files": ["api/", "constants/"],
