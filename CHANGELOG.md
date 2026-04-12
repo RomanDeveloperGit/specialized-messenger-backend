@@ -1,3 +1,10 @@
+## [1.7.7](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.6...v1.7.7) (2026-04-12)
+
+
+### Bug Fixes
+
+* fix ci ([41942e8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/41942e8d3c3216e0b3d54cdb4943106153e73c70))
+
 ## [1.7.6](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.5...v1.7.6) (2026-04-12)
 
 
