@@ -24,13 +24,7 @@ jobs:
           node-version: '20.19.6'
           cache: yarn
       - name: Create .env.development file
-        run: |
-          echo "HTTP_PORT=7070" > .env.development
-          echo "WS_PORT=8080" >> .env.development
-          echo "CONSUMER_ORIGIN=http://localhost:3000" >> .env.development
-          echo "HAS_DOCS=true" >> .env.development
-          echo "DATABASE_URL=postgresql://postgres:admin@localhost:5432/specialized-messenger?schema=public" >> .env.development
-          echo "PASSWORD_HASH_SALT=5" >> .env.development
+        run: cp .env.example .env.development
       - name: Install dependencies and generate prisma
         run: yarn setup:dev
       - name: Check TS and ESLint errors
