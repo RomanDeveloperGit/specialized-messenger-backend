@@ -22,17 +22,57 @@ jobs:
         with:
           node-version: '20.19.6' # TODO: up
           cache: yarn
-      - name: Create .env.development file
-        run: cp .env.example .env.development
+      - name: Create .env.production file
+        run: cp .env.example .env.production
       - name: Install dependencies and generate prisma
-        run: yarn setup:dev
+        run: yarn setup:prod
       - name: Build project
         run: yarn build
-      - name: Archive build
-        run: tar -czf release.tar.gz dist package.json yarn.lock
-      - name: Upload artifact to release
+      - name: Start server in background
+        run: yarn start:prod &
+      - name: Wait for server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:7070/docs-json > /dev/null && echo "Server is up!" && break
+            echo "Attempt $i, retrying in 2s..."
+            sleep 2
+          done
+
+      - name: Generate TypeScript types from OpenAPI
+        run: |
+          mkdir -p npm-package
+          npx openapi-typescript http://localhost:7070/docs-json --output npm-package/index.d.ts
+
+      - name: Copy constants
+        run: |
+          mkdir -p npm-package/constants
+          cp src/modules/chat/chat.constants.ts npm-package/constants/chat.constants.ts
+          cp src/modules/auth/auth.constants.ts npm-package/constants/auth.constants.ts
+          cp src/modules/invitation/invitation.constants.ts npm-package/constants/invitation.constants.ts
+
+      - name: Create package.json
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          cat > npm-package/package.json << EOF
+          {
+            "name": "@your-org/api-types",
+            "version": "${VERSION}",
+            "description": "Auto-generated API types and constants",
+            "types": "index.d.ts",
+            "exports": {
+              ".": { "types": "./index.d.ts" },
+              "./constants/chat": "./constants/chat.constants.ts",
+              "./constants/auth": "./constants/auth.constants.ts"
+            },
+            "files": ["index.d.ts", "constants/"]
+          }
+          EOF
+
+      - name: Pack into tar.gz
+        run: tar -czf api-types.tar.gz -C npm-package .
+
+      - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: release.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          files: api-types.tar.gz
