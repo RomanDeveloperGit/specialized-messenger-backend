@@ -29,11 +29,10 @@ jobs:
       - name: Build project
         run: yarn build
       - name: Archive build
-        run: |
-          zip -r release.zip dist package.json yarn.lock
+        run: tar -czf release.tar.gz dist package.json yarn.lock
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v2
         with:
-          files: release.zip
+          files: release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
