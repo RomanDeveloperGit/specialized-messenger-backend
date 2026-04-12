@@ -1,3 +1,10 @@
+## [1.7.9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.8...v1.7.9) (2026-04-12)
+
+
+### Bug Fixes
+
+* update CI name styles ([783fa4a](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/783fa4a80dab9370caff1233e9d27648a1cc9df8))
+
 ## [1.7.8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.7...v1.7.8) (2026-04-12)
 
 
