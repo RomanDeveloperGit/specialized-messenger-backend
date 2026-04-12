@@ -41,14 +41,12 @@ jobs:
       - name: Generate TypeScript types from OpenAPI
         run: |
           mkdir -p npm-package
-          npx openapi-typescript http://localhost:7070/docs-json --output npm-package/index.d.ts
+          npx openapi-typescript http://localhost:7070/docs-json --output npm-package/api/types.ts
 
       - name: Copy constants
         run: |
           mkdir -p npm-package/constants
-          cp src/modules/chat/chat.constants.ts npm-package/constants/chat.constants.ts
-          cp src/modules/auth/auth.constants.ts npm-package/constants/auth.constants.ts
-          cp src/modules/invitation/invitation.constants.ts npm-package/constants/invitation.constants.ts
+          cp src/modules/{chat/chat,auth/auth,invitation/invitation}.constants.ts npm-package/constants/
 
       - name: Create package.json
         run: |
@@ -56,16 +54,10 @@ jobs:
           VERSION="${VERSION#v}"
           cat > npm-package/package.json << EOF
           {
-            "name": "@your-org/api-types",
+            "name": "@types/specialized-messenger-backend",
             "version": "${VERSION}",
             "description": "Auto-generated API types and constants",
-            "types": "index.d.ts",
-            "exports": {
-              ".": { "types": "./index.d.ts" },
-              "./constants/chat": "./constants/chat.constants.ts",
-              "./constants/auth": "./constants/auth.constants.ts"
-            },
-            "files": ["index.d.ts", "constants/"]
+            "files": ["api/", "constants/"]
           }
           EOF
 
