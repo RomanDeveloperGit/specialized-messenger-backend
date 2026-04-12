@@ -23,6 +23,9 @@
     "build": "cross-env NODE_ENV=production nest build",
     "start:prod": "cross-env NODE_ENV=production node dist/src/main"
   },
+  "files": [
+    "dist/prisma.config.js"
+  ],
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
