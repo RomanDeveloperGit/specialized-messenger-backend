@@ -1,0 +1,39 @@
+name: Build and attach artifact to release
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    name: Build and upload artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.6'
+          cache: yarn
+      - name: Create .env.development file
+        run: cp .env.example .env.development
+      - name: Install dependencies and generate prisma
+        run: yarn setup:dev
+      - name: Build project
+        run: yarn build
+      - name: Archive build
+        run: |
+          zip -r release.zip dist package.json yarn.lock
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
