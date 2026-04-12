@@ -1,3 +1,10 @@
+## [1.7.11](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.10...v1.7.11) (2026-04-12)
+
+
+### Bug Fixes
+
+* fix name of npm package ([b8e5632](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/b8e56324e2e4e410de2d6529b5175c23ba0f0ded))
+
 ## [1.7.10](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.9...v1.7.10) (2026-04-12)
 
 
