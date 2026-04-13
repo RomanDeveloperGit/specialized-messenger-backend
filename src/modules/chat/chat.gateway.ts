@@ -124,7 +124,9 @@ export class ChatGateway {
       conversationId,
       senderId: userId,
       type: MessageType.TEXT,
-      content,
+      content: {
+        text: content,
+      },
     });
 
     this.server
