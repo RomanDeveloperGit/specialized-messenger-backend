@@ -1,7 +1,6 @@
 import {
   FromClientJoinConversationEventBody,
   FromClientSendMessageEventBody,
-  FromServerConversationsUpdateEventBody,
   FromServerNewMessageEventBody,
 } from './dto/ws.dto';
 
@@ -24,6 +23,6 @@ export type WSClientToServerEventsKeys = keyof WSClientToServerEvents;
 
 export interface WSServerToClientEvents {
   'from-server:message.new': (data: FromServerNewMessageEventBody) => void;
-  'from-server:conversations.update': (data: FromServerConversationsUpdateEventBody) => void;
+  'from-server:conversations.update': (data: void) => void;
   'from-server:error': (data: void) => void; // TODO: коды ошибок отправлять
 }

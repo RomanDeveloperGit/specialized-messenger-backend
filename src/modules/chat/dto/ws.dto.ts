@@ -19,8 +19,3 @@ export class FromClientSendMessageEventBody {
 export interface FromServerNewMessageEventBody {
   message: Message;
 }
-
-export interface FromServerConversationsUpdateEventBody {
-  conversationId: ConversationId;
-  message: Message;
-}

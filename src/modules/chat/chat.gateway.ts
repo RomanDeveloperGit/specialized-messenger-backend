@@ -123,10 +123,7 @@ export class ChatGateway {
     client.data.currentConversation.participants.forEach((participant) => {
       this.server
         .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
-        .emit('from-server:conversations.update', {
-          conversationId,
-          message,
-        });
+        .emit('from-server:conversations.update');
     });
   }
 
