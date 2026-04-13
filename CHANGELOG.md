@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.8.0...v1.9.0) (2026-04-13)
+
+
+### Features
+
+* **chat:** add event bus for communicating between ws and service ([f531e2a](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/f531e2a0eb74600536a262b10274ebc23ccfeafc))
+
 # [1.8.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.12...v1.8.0) (2026-04-13)
 
 
