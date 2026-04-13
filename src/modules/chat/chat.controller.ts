@@ -13,6 +13,7 @@ export class ChatController {
   @Post('conversations')
   @AuthGuard({ checkAdminRole: true }) // TODO: разрешить всем авторизованным
   async createConversation(@Req() req: AuthorizedRequest, @Body() data: CreateConversationRequest) {
+    // TODO: надо оповестить всех добавленных пользователей, что нужно релоадить
     return await this.chatService.createConversation(req.user.id, data);
   }
 
