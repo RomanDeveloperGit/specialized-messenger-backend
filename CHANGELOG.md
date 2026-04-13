@@ -1,3 +1,10 @@
+## [1.7.12](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.11...v1.7.12) (2026-04-13)
+
+
+### Bug Fixes
+
+* **ws:** delete body for update conversations event ([fbf2f00](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/fbf2f00f897fc3c0ad87c88a99f99581ad0be956))
+
 ## [1.7.11](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.10...v1.7.11) (2026-04-12)
 
 
