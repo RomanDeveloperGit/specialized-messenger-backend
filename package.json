@@ -1,7 +1,7 @@
 {
   "name": "specialized-messenger-backend",
   "description": "An application for professionals that allows them to communicate with their consumers",
-  "version": "1.7.12",
+  "version": "1.8.0",
   "author": {
     "name": "Roman Sukhinin",
     "email": "roman.developer@mail.ru"
@@ -14,7 +14,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "setup:dev": "yarn && cross-env NODE_ENV=development prisma generate",
     "setup:prod": "yarn && cross-env NODE_ENV=production prisma generate",
-    "seed:execute": "ts-node -r tsconfig-paths/register src/seed", 
+    "seed:execute": "ts-node -r tsconfig-paths/register src/seed",
     "ts:check": "tsc --noEmit",
     "lint:check": "eslint \"{src,apps,libs}/**/*.ts\"",
     "format": "eslint \"{src,apps,libs}/**/*.ts\" --fix && prettier --write \"src/**/*.ts\"",

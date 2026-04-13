@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.12...v1.8.0) (2026-04-13)
+
+
+### Features
+
+* **chat/message:** change message schema for different message types ([e327a79](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/e327a7925ef87ba5d703b594c38c1aec180a0160))
+
 ## [1.7.12](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.7.11...v1.7.12) (2026-04-13)
 
 
