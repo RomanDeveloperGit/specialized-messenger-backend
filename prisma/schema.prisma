@@ -109,3 +109,9 @@ model Message {
   @@index([conversationId, createdAt])
   @@index([senderId])
 }
+
+// TODO:
+// 1. Завести отдельные таблицы под типы вспомогательные в БД (MessageType, роли и тд)
+// 2. Id: uuid/int -> bigserial, либо сделать связку id (bigserial) + public id (uuid)
+// 3. Если буду использовать uuid, то лучше 7 версию, чем 4 текущую. + указывать @db.uuid
+// 4. Убрать JSON, заменить на Varchar или что-то еще придумать
