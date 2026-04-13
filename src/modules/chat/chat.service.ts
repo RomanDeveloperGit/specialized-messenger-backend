@@ -136,13 +136,20 @@ export class ChatService {
       },
     });
 
-    return conversations.map(
-      (conversation) =>
-        new Conversation({
-          ...conversation,
-          messages: conversation.messages.reverse(), // Делаем порядок "asc"
-        }),
-    );
+    return conversations
+      .map(
+        (conversation) =>
+          new Conversation({
+            ...conversation,
+            messages: conversation.messages.reverse(), // Делаем порядок "asc"
+          }),
+      )
+      .sort((a, b) => {
+        const lastMessageDateA = new Date(a.messages.at(-1)!.createdAt).getTime();
+        const lastMessageDateB = new Date(b.messages.at(-1)!.createdAt).getTime();
+
+        return lastMessageDateB - lastMessageDateA;
+      });
   }
 
   async getConversationById(conversationId: ConversationId, userId: UserId): Promise<Conversation> {
