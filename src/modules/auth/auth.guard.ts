@@ -16,6 +16,8 @@ import { UserService } from '@/modules/user/user.service';
 
 import { UserRole } from '@/shared/modules/generated/prisma/enums';
 
+import { AuthorizedRequest } from './auth.types';
+
 interface AuthGuardOptions {
   checkAdminRole?: boolean;
 }

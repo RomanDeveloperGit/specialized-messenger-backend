@@ -3,6 +3,8 @@ import { WsException } from '@nestjs/websockets';
 
 import { Socket } from 'socket.io';
 
+import { AuthorizedSocket, RoomedSocket } from './chat.types';
+
 const isAuthorizedSocket = (socket: Socket): socket is AuthorizedSocket => {
   return !!socket.data.user;
 };

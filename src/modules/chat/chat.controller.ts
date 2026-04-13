@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 
 import { AuthGuard } from '@/modules/auth/auth.guard';
+import { AuthorizedRequest } from '@/modules/auth/auth.types';
 
 import { ChatService } from './chat.service';
 import { CreateConversationRequest } from './dto/create-conversation.dto';

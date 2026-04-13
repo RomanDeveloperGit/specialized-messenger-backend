@@ -19,6 +19,7 @@ import {
 } from './chat.constants';
 import { AuthorizedSocketGuard, RoomedSocketGuard } from './chat.guard';
 import { ChatService } from './chat.service';
+import { AuthorizedSocket, RoomedSocket, WSTypedServer } from './chat.types';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
 
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
