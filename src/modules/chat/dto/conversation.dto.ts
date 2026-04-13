@@ -46,6 +46,9 @@ export class Conversation implements _Conversation {
   createdAt: Date;
 
   @Expose()
+  updatedAt: Date;
+
+  @Expose()
   @ApiProperty({
     type: [ConversationParticipant],
   })
