@@ -1,30 +1,42 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { UserId } from '@/modules/user/dto/user.dto';
 
-import { ConversationType, ParticipantRole } from '@/shared/modules/generated/prisma/client';
+import {
+  ConversationType,
+  MessageType,
+  ParticipantRole,
+} from '@/shared/modules/generated/prisma/client';
 import { PrismaService } from '@/shared/modules/prisma';
 
 import {
+  CHAT_EVENT,
   ERROR_CONVERSATION_NOT_FOUND,
   ERROR_INVALID_PARTICIPANTS,
+  MessageTypeWithContent,
   MIN_PRELOADED_MESSAGES_COUNT,
 } from './chat.constants';
 import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
 import { CreateMessageRequest } from './dto/create-message.dto';
+import { ConversationCreatedEvent } from './dto/events.dto';
 import { Message } from './dto/message.dto';
 import { ConversationId } from './dto/types.dto';
 
 @Injectable()
 export class ChatService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async createConversation(
     userId: UserId,
     { participantUserIds, ...conversationData }: CreateConversationRequest,
   ): Promise<Conversation> {
     return await this.prismaService.$transaction(async (tx) => {
+      // TODO: перенести это потом в create-conversation.validator.ts + ошибку, если там айдишник самого создателя есть
       const filteredParticipantUserIds = participantUserIds.filter((id) => id !== userId);
 
       if (
@@ -52,7 +64,7 @@ export class ChatService {
 
       const allParticipantUserIds = [userId, ...filteredParticipantUserIds];
 
-      const conversation = await tx.conversation.create({
+      const rawConversation = await tx.conversation.create({
         data: {
           ...conversationData,
           name: conversationData.type === ConversationType.DIRECT ? null : conversationData.name,
@@ -61,6 +73,22 @@ export class ChatService {
               userId: participantUserId,
               role: participantUserId === userId ? ParticipantRole.OWNER : ParticipantRole.MEMBER,
             })),
+          },
+          messages: {
+            createMany: {
+              data: [
+                {
+                  type: MessageType.SYSTEM_CONVERSATION_CREATED,
+                  content: {},
+                } as MessageTypeWithContent,
+                ...filteredParticipantUserIds.map<MessageTypeWithContent>((participantUserId) => ({
+                  type: MessageType.SYSTEM_USER_JOINED,
+                  content: {
+                    userId: participantUserId,
+                  },
+                })),
+              ],
+            },
           },
         },
         include: {
@@ -73,7 +101,14 @@ export class ChatService {
         },
       });
 
-      return new Conversation(conversation);
+      const conversation = new Conversation(rawConversation);
+
+      this.eventEmitter.emit(
+        CHAT_EVENT.CONVERSATION_CREATED,
+        new ConversationCreatedEvent(conversation),
+      );
+
+      return conversation;
     });
   }
 

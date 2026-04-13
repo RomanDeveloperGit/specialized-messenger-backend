@@ -22,6 +22,7 @@ import {
 import { AuthorizedSocketGuard, RoomedSocketGuard } from './chat.guard';
 import { ChatService } from './chat.service';
 import { AuthorizedSocket, RoomedSocket, WSTypedServer } from './chat.types';
+import { ConversationParticipant } from './dto/conversation-participant.dto';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
 
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
@@ -59,8 +60,16 @@ export class ChatGateway {
     client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${user.id}`);
   }
 
-  // // TODO: update last seen date
+  // TODO: update last seen date
   // async handleDisconnect(client: AuthorizedSocket) {}
+
+  emitConversationsUpdate(participants: ConversationParticipant[]) {
+    participants.forEach((participant) => {
+      this.server
+        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
+        .emit('from-server:conversations.update');
+    });
+  }
 
   @UseGuards(AuthorizedSocketGuard)
   @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.join')
@@ -124,11 +133,7 @@ export class ChatGateway {
         message,
       });
 
-    client.data.currentConversation.participants.forEach((participant) => {
-      this.server
-        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
-        .emit('from-server:conversations.update');
-    });
+    this.emitConversationsUpdate(client.data.currentConversation.participants);
   }
 
   // TODO: при обновлении participants обновлять их в data.currentConversation у каждого client, который является участником чата

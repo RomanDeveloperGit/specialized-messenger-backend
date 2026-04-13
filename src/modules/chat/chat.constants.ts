@@ -1,3 +1,7 @@
+import { UserId } from '@/modules/user/dto/user.dto';
+
+import { MessageType } from '@/shared/modules/generated/prisma/enums';
+
 import {
   FromClientJoinConversationEventBody,
   FromClientSendMessageEventBody,
@@ -12,6 +16,24 @@ export const ERROR_CONVERSATION_NOT_FOUND = 'ERROR_CONVERSATION_NOT_FOUND';
 
 export const WS_PERSONAL_USER_ROOM_PREFIX = 'user';
 export const WS_CONVERSATION_ROOM_PREFIX = 'conversation';
+
+export type MessageTypeContent = {
+  [MessageType.SYSTEM_CONVERSATION_CREATED]: Record<string, never>;
+  [MessageType.SYSTEM_USER_JOINED]: {
+    userId: UserId;
+  };
+  [MessageType.TEXT]: {
+    text: string;
+  };
+};
+
+export type MessageTypeWithContent = {
+  [T in MessageType]: { type: T; content: MessageTypeContent[T] };
+}[MessageType];
+
+export const CHAT_EVENT = {
+  CONVERSATION_CREATED: 'chat.conversation.created',
+} as const;
 
 export interface WSClientToServerEvents {
   'from-client:conversation.join': (data: FromClientJoinConversationEventBody) => void;
