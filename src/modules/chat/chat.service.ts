@@ -190,8 +190,12 @@ export class ChatService {
         data,
       }),
       this.prismaService.conversation.update({
-        where: { id: data.conversationId },
-        data: { updatedAt: new Date() },
+        where: {
+          id: data.conversationId,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
       }),
     ]);
 
