@@ -1,3 +1,16 @@
+## [1.9.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.1...v1.9.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **conversation/dto:** add updated at field ([fe1e436](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/fe1e436eebf19bfd9a9b1262af52e9849d10003a))
+
+
+### Performance Improvements
+
+* **chat:** add indexes for optimization ([501053f](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/501053f3bab4b03d16c727d72b2c2bf9350d938c))
+* **indexes:** add migration file ([d2f73f0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/d2f73f0acff8bb28a00e235b158446a3d2794f32))
+
 ## [1.9.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.0...v1.9.1) (2026-04-13)
 
 
