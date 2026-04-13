@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "nest:module": "nest g resource --no-spec",
-    "migrate:create": "prisma migrate dev",
+    "migrate:create": "prisma migrate dev --create-only",
     "migrate:deploy": "prisma migrate deploy",
     "setup:dev": "yarn && cross-env NODE_ENV=development prisma generate",
     "setup:prod": "yarn && cross-env NODE_ENV=production prisma generate",
