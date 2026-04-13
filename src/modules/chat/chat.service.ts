@@ -129,27 +129,17 @@ export class ChatService {
         },
         messages: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: 'asc',
           },
-          take: MIN_PRELOADED_MESSAGES_COUNT,
+          take: -MIN_PRELOADED_MESSAGES_COUNT,
         },
+      },
+      orderBy: {
+        updatedAt: 'desc',
       },
     });
 
-    return conversations
-      .map(
-        (conversation) =>
-          new Conversation({
-            ...conversation,
-            messages: conversation.messages.reverse(), // Делаем порядок "asc"
-          }),
-      )
-      .sort((a, b) => {
-        const lastMessageDateA = new Date(a.messages.at(-1)!.createdAt).getTime();
-        const lastMessageDateB = new Date(b.messages.at(-1)!.createdAt).getTime();
-
-        return lastMessageDateB - lastMessageDateA;
-      });
+    return conversations.map((conversation) => new Conversation(conversation));
   }
 
   async getConversationById(conversationId: ConversationId, userId: UserId): Promise<Conversation> {
@@ -195,9 +185,15 @@ export class ChatService {
   }
 
   async createMessage(data: CreateMessageRequest): Promise<Message> {
-    const message = await this.prismaService.message.create({
-      data,
-    });
+    const [message] = await this.prismaService.$transaction([
+      this.prismaService.message.create({
+        data,
+      }),
+      this.prismaService.conversation.update({
+        where: { id: data.conversationId },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
 
     return new Message(message);
   }
