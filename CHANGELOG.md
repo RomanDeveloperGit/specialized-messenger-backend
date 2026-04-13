@@ -1,3 +1,10 @@
+## [1.9.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.2...v1.9.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* **chat:** fix message content format for saving in db ([694c11f](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/694c11fdfb1273555fc70a17aaf7fa5e971ebbab))
+
 ## [1.9.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.1...v1.9.2) (2026-04-13)
 
 
