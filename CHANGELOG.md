@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.0...v1.9.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* **chat/conversations:** fix sorting by last message dates ([604f2aa](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/604f2aad4d5d14947cb30cba8ff722de064777e7))
+
 # [1.9.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.8.0...v1.9.0) (2026-04-13)
 
 
