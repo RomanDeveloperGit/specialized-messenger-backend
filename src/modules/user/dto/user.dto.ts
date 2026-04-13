@@ -22,6 +22,7 @@ export class User implements Omit<_User, 'password'> {
   @Expose()
   @ApiProperty({
     enum: UserRole,
+    example: UserRole.USER,
   })
   role: UserRole;
 

@@ -42,6 +42,7 @@ export class ConversationParticipant implements _ConversationParticipant {
   @Expose()
   @ApiProperty({
     enum: ParticipantRole,
+    example: ParticipantRole.MEMBER,
   })
   role: ParticipantRole;
 

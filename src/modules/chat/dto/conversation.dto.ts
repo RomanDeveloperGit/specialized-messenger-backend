@@ -38,6 +38,7 @@ export class Conversation implements _Conversation {
   @Expose()
   @ApiProperty({
     enum: ConversationType,
+    example: ConversationType.DIRECT,
   })
   type: ConversationType;
 

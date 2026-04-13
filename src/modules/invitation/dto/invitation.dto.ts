@@ -22,6 +22,7 @@ export class Invitation implements _Invitation {
   @Expose()
   @ApiProperty({
     enum: InvitationStatus,
+    example: InvitationStatus.PENDING,
   })
   status: InvitationStatus;
 
