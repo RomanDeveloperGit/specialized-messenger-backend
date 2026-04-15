@@ -16,8 +16,8 @@ import { ERROR_INVITATION_NOT_FOUND, ERROR_INVITATION_NOT_PENDING } from './invi
 @Injectable()
 export class InvitationService {
   constructor(
-    private prismaService: PrismaService,
-    private userService: UserService,
+    private readonly prismaService: PrismaService,
+    private readonly userService: UserService,
   ) {}
 
   async create(data: CreateInvitationRequest, authorUserId: Id): Promise<Invitation> {

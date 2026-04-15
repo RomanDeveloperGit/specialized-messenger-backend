@@ -29,9 +29,9 @@ import { Message } from './dto/message.dto';
 @Injectable()
 export class ChatService {
   constructor(
-    private prismaService: PrismaService,
-    private eventEmitter: EventEmitter2,
-    private userService: UserService,
+    private readonly prismaService: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly userService: UserService,
   ) {}
 
   async createConversation(

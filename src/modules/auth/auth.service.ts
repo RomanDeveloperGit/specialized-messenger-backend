@@ -8,7 +8,7 @@ import { SignInRequest } from './dto/sign-in.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
   async signIn(data: SignInRequest): Promise<User> {
     const user = await this.userService.getByCredentials(data);

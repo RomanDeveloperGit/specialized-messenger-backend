@@ -14,8 +14,8 @@ import { User } from './dto/user.dto';
 @Injectable()
 export class UserService {
   constructor(
-    private prismaService: PrismaService,
-    private configService: ConfigService,
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(data: CreateUserRequest): Promise<User> {

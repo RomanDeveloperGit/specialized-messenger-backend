@@ -7,7 +7,7 @@ import { SignInRequest } from './dto/sign-in.dto';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-in')
   async signIn(@Body() data: SignInRequest) {

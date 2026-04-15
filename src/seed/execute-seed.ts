@@ -18,6 +18,8 @@ export const executeSeed = async () => {
 
   const app = await NestFactory.createApplicationContext(AppModule);
   const prismaService = app.get(PrismaService);
+  const userService = app.get(UserService);
+  const chatService = app.get(ChatService);
 
   await prismaService.$executeRawUnsafe(`
     DO $$ DECLARE
@@ -28,9 +30,6 @@ export const executeSeed = async () => {
       END LOOP;
     END $$;
   `);
-
-  const userService = app.get(UserService);
-  const chatService = app.get(ChatService);
 
   const users: User[] = [];
 
