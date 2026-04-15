@@ -29,7 +29,7 @@ module.exports = {
         ["^node:"],
         ["@nest", "express"],
         ["socket.io"],
-        ["bcrypt"],
+        ["bcrypt", "uuidv7"],
         ["class-validator", "class-transformer"],
         ["@nestjs/jwt", "passport", "jsonwebtoken"],
         ["@prisma"],

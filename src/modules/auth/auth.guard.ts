@@ -1,15 +1,12 @@
 import {
-  applyDecorators,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
   Injectable,
   SetMetadata,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ApiBasicAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { UserService } from '@/modules/user/user.service';
@@ -24,8 +21,11 @@ interface AuthGuardOptions {
 
 const AUTH_GUARD_OPTIONS_KEY = 'authGuardOptions';
 
+export const AuthOptions = (options: AuthGuardOptions) =>
+  SetMetadata(AUTH_GUARD_OPTIONS_KEY, options);
+
 @Injectable()
-class RawAuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
   constructor(
     private readonly userService: UserService,
     private readonly reflector: Reflector,
@@ -77,12 +77,4 @@ class RawAuthGuard implements CanActivate {
       password,
     };
   }
-}
-
-export function AuthGuard(options: AuthGuardOptions = {}) {
-  return applyDecorators(
-    SetMetadata(AUTH_GUARD_OPTIONS_KEY, options),
-    ApiBasicAuth(),
-    UseGuards(RawAuthGuard),
-  );
 }

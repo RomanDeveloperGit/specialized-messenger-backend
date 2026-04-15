@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import {
   Conversation as _Conversation,
   ConversationType,
@@ -13,7 +14,6 @@ import {
 
 import { ConversationParticipant } from './conversation-participant.dto';
 import { Message } from './message.dto';
-import { ConversationId } from './types.dto';
 
 const conversationInclude = {
   participants: {
@@ -28,9 +28,12 @@ type PopulatedConversation = ConversationGetPayload<{
   include: typeof conversationInclude;
 }>;
 
-export class Conversation implements _Conversation {
+export class Conversation implements Omit<_Conversation, 'id'> {
   @Expose()
-  id: ConversationId;
+  id: Id;
+
+  @Expose()
+  publicId: PublicId;
 
   @Expose()
   name: string | null;
@@ -63,6 +66,7 @@ export class Conversation implements _Conversation {
   constructor(conversation: PopulatedConversation) {
     Object.assign(this, {
       ...conversation,
+      id: conversation.id.toString(),
       participants: conversation.participants.map(
         (participant) => new ConversationParticipant(participant),
       ),

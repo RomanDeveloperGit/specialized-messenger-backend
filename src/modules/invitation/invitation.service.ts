@@ -1,13 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
+import { uuidv7 } from 'uuidv7';
+
 import { UserService } from '@/modules/user/user.service';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import { InvitationStatus } from '@/shared/modules/generated/prisma/enums';
 import { PrismaService } from '@/shared/modules/prisma';
 
-import { ApplyInvitationRequest } from './dto/apply-invitation.dto';
+import { AcceptInvitationByPublicIdRequest } from './dto/accept-invitation-by-public-id.dto';
 import { CreateInvitationRequest } from './dto/create-invitation.dto';
-import { Invitation, InvitationId } from './dto/invitation.dto';
+import { Invitation } from './dto/invitation.dto';
 import { ERROR_INVITATION_NOT_FOUND, ERROR_INVITATION_NOT_PENDING } from './invitation.constants';
 
 @Injectable()
@@ -17,18 +20,22 @@ export class InvitationService {
     private userService: UserService,
   ) {}
 
-  async create(data: CreateInvitationRequest): Promise<Invitation> {
+  async create(data: CreateInvitationRequest, authorUserId: Id): Promise<Invitation> {
     const invitation = await this.prismaService.invitation.create({
-      data,
+      data: {
+        ...data,
+        publicId: uuidv7(),
+        authorUserId: BigInt(authorUserId),
+      },
     });
 
     return new Invitation(invitation);
   }
 
-  async getById(id: InvitationId): Promise<Invitation> {
+  async getByPublicId(publicId: PublicId): Promise<Invitation> {
     const invitation = await this.prismaService.invitation.findUnique({
       where: {
-        id,
+        publicId,
       },
     });
 
@@ -41,18 +48,11 @@ export class InvitationService {
     return new Invitation(invitation);
   }
 
-  async apply(id: InvitationId, data: ApplyInvitationRequest): Promise<void> {
-    const invitation = await this.prismaService.invitation.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!invitation) {
-      throw new BadRequestException({
-        code: ERROR_INVITATION_NOT_FOUND,
-      });
-    }
+  async acceptByPublicId(
+    publicId: PublicId,
+    data: AcceptInvitationByPublicIdRequest,
+  ): Promise<void> {
+    const invitation = await this.getByPublicId(publicId);
 
     if (invitation.status !== InvitationStatus.PENDING) {
       throw new BadRequestException({
@@ -69,7 +69,7 @@ export class InvitationService {
 
     await this.prismaService.invitation.update({
       where: {
-        id,
+        id: BigInt(invitation.id),
       },
       data: {
         status: InvitationStatus.ACCEPTED,

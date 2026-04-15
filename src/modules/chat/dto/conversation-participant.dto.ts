@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
-import { User, UserId } from '@/modules/user/dto/user.dto';
+import { User } from '@/modules/user/dto/user.dto';
 
+import { Id } from '@/shared/libs/ids';
 import {
   ConversationParticipant as _ConversationParticipant,
   ParticipantRole,
@@ -13,8 +14,6 @@ import {
   ConversationParticipantInclude,
 } from '@/shared/modules/generated/prisma/models';
 
-import { ConversationId, ConversationParticipantId } from './types.dto';
-
 const conversationParticipantInclude = {
   user: true,
 } satisfies ConversationParticipantInclude;
@@ -23,15 +22,18 @@ type PopulatedConversationParticipant = ConversationParticipantGetPayload<{
   include: typeof conversationParticipantInclude;
 }>;
 
-export class ConversationParticipant implements _ConversationParticipant {
+export class ConversationParticipant implements Omit<
+  _ConversationParticipant,
+  'id' | 'conversationId' | 'userId'
+> {
   @Expose()
-  id: ConversationParticipantId;
+  id: Id;
 
   @Expose()
-  conversationId: ConversationId;
+  conversationId: Id;
 
   @Expose()
-  userId: UserId;
+  userId: Id;
 
   @Expose()
   @ApiProperty({
@@ -52,6 +54,9 @@ export class ConversationParticipant implements _ConversationParticipant {
   constructor(conversationParticipant: PopulatedConversationParticipant) {
     Object.assign(this, {
       ...conversationParticipant,
+      id: conversationParticipant.id.toString(),
+      conversationId: conversationParticipant.conversationId.toString(),
+      userId: conversationParticipant.userId.toString(),
       user: new User(conversationParticipant.user),
     });
   }

@@ -2,13 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import { User as _User, UserRole } from '@/shared/modules/generated/prisma/client';
 
-export type UserId = _User['id'];
-
-export class User implements Omit<_User, 'password'> {
+export class User implements Omit<_User, 'id' | 'password'> {
   @Expose()
-  id: UserId;
+  id: Id;
+
+  @Expose()
+  publicId: PublicId;
 
   @Expose()
   firstName: string;
@@ -34,6 +36,9 @@ export class User implements Omit<_User, 'password'> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor({ password, ...user }: _User) {
-    Object.assign(this, user);
+    Object.assign(this, {
+      ...user,
+      id: user.id.toString(),
+    });
   }
 }

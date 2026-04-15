@@ -2,22 +2,27 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import {
   Invitation as _Invitation,
   InvitationStatus,
 } from '@/shared/modules/generated/prisma/client';
 
-export type InvitationId = _Invitation['id'];
-
-export class Invitation implements _Invitation {
+export class Invitation implements Omit<_Invitation, 'id' | 'authorUserId'> {
   @Expose()
-  id: InvitationId;
+  id: Id;
+
+  @Expose()
+  publicId: PublicId;
 
   @Expose()
   firstName: string;
 
   @Expose()
   lastName: string;
+
+  @Expose()
+  authorUserId: Id;
 
   @Expose()
   @ApiProperty({
@@ -30,6 +35,10 @@ export class Invitation implements _Invitation {
   createdAt: Date;
 
   constructor(invitation: _Invitation) {
-    Object.assign(this, invitation);
+    Object.assign(this, {
+      ...invitation,
+      id: invitation.id.toString(),
+      authorUserId: invitation.authorUserId.toString(),
+    });
   }
 }

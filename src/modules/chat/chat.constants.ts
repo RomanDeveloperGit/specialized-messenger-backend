@@ -1,5 +1,4 @@
-import { UserId } from '@/modules/user/dto/user.dto';
-
+import { PublicId } from '@/shared/libs/ids';
 import { MessageType } from '@/shared/modules/generated/prisma/enums';
 
 import {
@@ -17,18 +16,23 @@ export const ERROR_CONVERSATION_NOT_FOUND = 'ERROR_CONVERSATION_NOT_FOUND';
 export const WS_PERSONAL_USER_ROOM_PREFIX = 'user';
 export const WS_CONVERSATION_ROOM_PREFIX = 'conversation';
 
-export type MessageTypeContent = {
-  [MessageType.SYSTEM_CONVERSATION_CREATED]: Record<string, never>;
+export type MessageContentByTypeMap = {
+  [MessageType.SYSTEM_CONVERSATION_CREATED]: '';
   [MessageType.SYSTEM_USER_JOINED]: {
-    userId: UserId;
+    // Чтобы не было проблем с сериализацией, будем хранить не Id (BigInt), а PublicId (uuid)
+    // Он все равно нужен только для UI
+    userPublicId: PublicId;
   };
   [MessageType.TEXT]: {
     text: string;
   };
 };
 
-export type MessageTypeWithContent = {
-  [T in MessageType]: { type: T; content: MessageTypeContent[T] };
+export type MessageContent<T extends MessageType> = MessageContentByTypeMap[T];
+export type MessageContents = MessageContent<MessageType>;
+
+export type MessageTypeWithContentObject = {
+  [T in MessageType]: { type: T; content: MessageContent<T> };
 }[MessageType];
 
 export const CHAT_EVENT = {
@@ -46,5 +50,5 @@ export type WSClientToServerEventsKeys = keyof WSClientToServerEvents;
 export interface WSServerToClientEvents {
   'from-server:message.new': (data: FromServerNewMessageEventBody) => void;
   'from-server:conversations.update': (data: void) => void;
-  'from-server:error': (data: void) => void; // TODO: коды ошибок отправлять
+  'from-server:error': (data: void) => void;
 }

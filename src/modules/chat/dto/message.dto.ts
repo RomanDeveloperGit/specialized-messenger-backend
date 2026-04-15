@@ -2,23 +2,26 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 
-import { UserId } from '@/modules/user/dto/user.dto';
+import { MessageContents } from '@/modules/chat/chat.constants';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import { Message as _Message, MessageType } from '@/shared/modules/generated/prisma/client';
 
-import { ConversationId, MessageId } from './types.dto';
-
-export type SenderId = UserId | null;
-
-export class Message implements _Message {
+export class Message implements Omit<
+  _Message,
+  'id' | 'conversationId' | 'authorUserId' | 'content'
+> {
   @Expose()
-  id: MessageId;
-
-  @Expose()
-  conversationId: ConversationId;
+  id: Id;
 
   @Expose()
-  senderId: SenderId;
+  publicId: PublicId;
+
+  @Expose()
+  conversationId: Id;
+
+  @Expose()
+  authorUserId: Id | null;
 
   @Expose()
   @ApiProperty({
@@ -28,12 +31,21 @@ export class Message implements _Message {
   type: MessageType;
 
   @Expose()
-  content: string;
+  @ApiProperty({
+    description: 'См. типы в chat.constants.ts (MessageContents)',
+  })
+  content: MessageContents;
 
   @Expose()
   createdAt: Date;
 
   constructor(message: _Message) {
-    Object.assign(this, message);
+    Object.assign(this, {
+      ...message,
+      id: message.id.toString(),
+      conversationId: message.conversationId.toString(),
+      authorUserId: message.authorUserId?.toString() || null,
+      content: JSON.parse(message.content),
+    });
   }
 }

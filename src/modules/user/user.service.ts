@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 import { compare, hash } from 'bcrypt';
+import { uuidv7 } from 'uuidv7';
 
+import { Id, PublicId } from '@/shared/libs/ids';
 import { ConfigService } from '@/shared/modules/config';
 import { PrismaService } from '@/shared/modules/prisma';
 
@@ -21,6 +23,7 @@ export class UserService {
     const user = await this.prismaService.user.create({
       data: {
         ...data,
+        publicId: uuidv7(),
         password,
       },
     });
@@ -46,5 +49,20 @@ export class UserService {
     const users = await this.prismaService.user.findMany();
 
     return users.map((user) => new User(user));
+  }
+
+  async getIdsByPublicIds(publicIds: PublicId[]): Promise<Id[]> {
+    const users = await this.prismaService.user.findMany({
+      where: {
+        publicId: {
+          in: publicIds,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return users.map(({ id }) => id.toString());
   }
 }

@@ -46,8 +46,6 @@ async function bootstrap() {
     SwaggerModule.setup('docs/prisma', app, prismaEntitiesDocument);
   }
 
-  // TODO: Хот релоад аксепт добавить в нест
-
   app.useWebSocketAdapter(new WSAdapter(app, configService));
 
   await app.listen(configService.get('httpPort'));

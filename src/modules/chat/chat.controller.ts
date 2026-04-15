@@ -1,34 +1,43 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBasicAuth } from '@nestjs/swagger';
 
-import { AuthGuard } from '@/modules/auth/auth.guard';
+import { AuthGuard, AuthOptions } from '@/modules/auth/auth.guard';
 import { AuthorizedRequest } from '@/modules/auth/auth.types';
 
 import { ChatService } from './chat.service';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
-import { GetConversationByIdParams } from './dto/get-conversation-by-id.dto';
+import { GetConversationByPublicIdParams } from './dto/get-conversation-by-public-id.dto';
+import { ValidateParticipantUserIdsPipe } from './pipes/validate-participant-user-ids.pipe';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('conversations')
-  @AuthGuard({ checkAdminRole: true }) // TODO: разрешить всем авторизованным
-  async createConversation(@Req() req: AuthorizedRequest, @Body() data: CreateConversationRequest) {
+  @AuthOptions({ checkAdminRole: true })
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
+  async createConversation(
+    @Req() req: AuthorizedRequest,
+    @Body(ValidateParticipantUserIdsPipe) data: CreateConversationRequest,
+  ) {
     return await this.chatService.createConversation(req.user.id, data);
   }
 
   @Get('conversations')
-  @AuthGuard()
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
   async getConversations(@Req() req: AuthorizedRequest) {
     return await this.chatService.getConversations(req.user.id);
   }
 
   @Get('conversations/:id')
-  @AuthGuard()
-  async getConversationById(
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
+  async getConversationByPublicId(
     @Req() req: AuthorizedRequest,
-    @Param() { id: conversationId }: GetConversationByIdParams,
+    @Param() { id: conversationPublicId }: GetConversationByPublicIdParams,
   ) {
-    return await this.chatService.getConversationById(conversationId, req.user.id);
+    return await this.chatService.getConversationByPublicId(conversationPublicId, req.user.id);
   }
 }

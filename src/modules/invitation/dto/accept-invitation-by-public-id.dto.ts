@@ -1,13 +1,13 @@
 import { IsString, IsUUID, MinLength } from 'class-validator';
 
-import { InvitationId } from './invitation.dto';
+import { PublicId } from '@/shared/libs/ids';
 
-export class ApplyInvitationParams {
+export class AcceptInvitationByPublicIdParams {
   @IsUUID()
-  id: InvitationId;
+  id: PublicId;
 }
 
-export class ApplyInvitationRequest {
+export class AcceptInvitationByPublicIdRequest {
   @IsString()
   login: string;
 

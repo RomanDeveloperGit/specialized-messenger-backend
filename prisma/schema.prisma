@@ -26,17 +26,19 @@ enum UserRole {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  firstName String
-  lastName  String
-  login     String   @unique
-  password  String
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  publicId  String   @unique @db.Uuid
+  firstName String   @db.VarChar(100)
+  lastName  String   @db.VarChar(100)
+  login     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
   role      UserRole @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
 
-  participants ConversationParticipant[]
-  messages     Message[]
+  sentInvitations Invitation[]
+  participants    ConversationParticipant[]
+  messages        Message[]
 }
 
 enum InvitationStatus {
@@ -45,11 +47,15 @@ enum InvitationStatus {
 }
 
 model Invitation {
-  id        String           @id @default(uuid())
-  firstName String
-  lastName  String
-  status    InvitationStatus @default(PENDING)
-  createdAt DateTime         @default(now())
+  id           BigInt           @id @default(autoincrement()) @db.BigInt
+  publicId     String           @unique @db.Uuid
+  firstName    String           @db.VarChar(100)
+  lastName     String           @db.VarChar(100)
+  authorUserId BigInt           @db.BigInt
+  status       InvitationStatus @default(PENDING)
+  createdAt    DateTime         @default(now()) @db.Timestamptz
+
+  author User @relation(fields: [authorUserId], references: [id])
 }
 
 enum ConversationType {
@@ -58,16 +64,17 @@ enum ConversationType {
 }
 
 model Conversation {
-  id        String           @id @default(uuid())
-  name      String?
+  id        BigInt           @id @default(autoincrement()) @db.BigInt
+  publicId  String           @unique @db.Uuid
+  name      String?          @db.VarChar(100)
   type      ConversationType
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @default(now()) @updatedAt
+  createdAt DateTime         @default(now()) @db.Timestamptz
+  updatedAt DateTime         @updatedAt @db.Timestamptz
 
   participants ConversationParticipant[]
   messages     Message[]
 
-  @@index([updatedAt])
+  @@index([updatedAt(sort: Desc)])
 }
 
 enum ParticipantRole {
@@ -76,11 +83,11 @@ enum ParticipantRole {
 }
 
 model ConversationParticipant {
-  id             Int             @id @default(autoincrement())
-  conversationId String
-  userId         Int
+  id             BigInt          @id @default(autoincrement())
+  conversationId BigInt          @db.BigInt
+  userId         BigInt          @db.BigInt
   role           ParticipantRole @default(MEMBER)
-  joinedAt       DateTime        @default(now())
+  joinedAt       DateTime        @default(now()) @db.Timestamptz
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
   user         User         @relation(fields: [userId], references: [id])
@@ -96,22 +103,19 @@ enum MessageType {
 }
 
 model Message {
-  id             String      @id @default(uuid())
-  conversationId String
-  senderId       Int?
+  id             BigInt      @id @default(autoincrement()) @db.BigInt
+  publicId       String      @unique @db.Uuid
+  conversationId BigInt      @db.BigInt
+  authorUserId   BigInt?     @db.BigInt
   type           MessageType
-  content        Json
-  createdAt      DateTime    @default(now())
+  content        String      @db.VarChar(1000)
+  createdAt      DateTime    @default(now()) @db.Timestamptz
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
-  user         User?        @relation(fields: [senderId], references: [id])
+  user         User?        @relation(fields: [authorUserId], references: [id])
 
-  @@index([conversationId, createdAt])
-  @@index([senderId])
+  @@index([conversationId, createdAt(sort: Desc)])
 }
 
 // TODO:
 // 1. Завести отдельные таблицы под типы вспомогательные в БД (MessageType, роли и тд)
-// 2. Id: uuid/int -> bigserial, либо сделать связку id (bigserial) + public id (uuid)
-// 3. Если буду использовать uuid, то лучше 7 версию, чем 4 текущую. + указывать @db.uuid
-// 4. Убрать JSON, заменить на Varchar или что-то еще придумать

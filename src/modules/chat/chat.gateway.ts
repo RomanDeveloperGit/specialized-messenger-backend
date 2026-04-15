@@ -19,11 +19,11 @@ import {
   WS_PERSONAL_USER_ROOM_PREFIX,
   WSClientToServerEventsKeys,
 } from './chat.constants';
-import { AuthorizedSocketGuard, RoomedSocketGuard } from './chat.guard';
 import { ChatService } from './chat.service';
 import { AuthorizedSocket, RoomedSocket, WSTypedServer } from './chat.types';
 import { ConversationParticipant } from './dto/conversation-participant.dto';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
+import { AuthorizedSocketGuard, RoomedSocketGuard } from './guards/ws.guard';
 
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
 @WebSocketGateway()
@@ -60,9 +60,6 @@ export class ChatGateway {
     client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${user.id}`);
   }
 
-  // TODO: update last seen date
-  // async handleDisconnect(client: AuthorizedSocket) {}
-
   emitConversationsUpdate(participants: ConversationParticipant[]) {
     participants.forEach((participant) => {
       this.server
@@ -82,9 +79,9 @@ export class ChatGateway {
     let conversation;
 
     try {
-      conversation = await this.chatService.getConversationById(conversationId, userId);
+      conversation = await this.chatService.getConversationByPublicId(conversationId, userId);
     } catch {
-      client.emit('from-server:error'); // TODO: реакция фронта - выкинуть из открытого чата на главную страницу списка чатов
+      client.emit('from-server:error');
 
       return;
     }
@@ -122,7 +119,7 @@ export class ChatGateway {
 
     const message = await this.chatService.createMessage({
       conversationId,
-      senderId: userId,
+      authorUserId: userId,
       type: MessageType.TEXT,
       content: {
         text: content,
@@ -137,6 +134,4 @@ export class ChatGateway {
 
     this.emitConversationsUpdate(client.data.currentConversation.participants);
   }
-
-  // TODO: при обновлении participants обновлять их в data.currentConversation у каждого client, который является участником чата
 }

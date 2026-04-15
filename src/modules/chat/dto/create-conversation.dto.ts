@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsArray, IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsString, IsUUID } from 'class-validator';
 
+import { PublicId } from '@/shared/libs/ids';
 import { ConversationType } from '@/shared/modules/generated/prisma/enums';
 
 export class CreateConversationRequest {
@@ -15,6 +16,6 @@ export class CreateConversationRequest {
   type: ConversationType;
 
   @IsArray()
-  @IsNumber({}, { each: true })
-  participantUserIds: number[];
+  @IsUUID('7', { each: true })
+  participantUserIds: PublicId[];
 }

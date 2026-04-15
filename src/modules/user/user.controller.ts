@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBasicAuth } from '@nestjs/swagger';
 
 import { AuthGuard } from '@/modules/auth/auth.guard';
 
@@ -9,7 +10,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @AuthGuard()
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
   async getAll() {
     return await this.userService.getAll();
   }

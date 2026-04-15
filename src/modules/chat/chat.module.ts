@@ -5,11 +5,11 @@ import { UserService } from '@/modules/user/user.service';
 
 import { ChatController } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
-import { AuthorizedSocketGuard, RoomedSocketGuard } from './chat.guard';
 import { ChatListener } from './chat.listener';
 import { ChatService } from './chat.service';
+import { AuthorizedSocketGuard, RoomedSocketGuard } from './guards/ws.guard';
+import { ValidateParticipantUserIdsPipe } from './pipes/validate-participant-user-ids.pipe';
 
-// TODO: разбить модуль на несколько разных доменов (+ мб переименовать conversation -> chat)
 @Module({
   imports: [EventEmitterModule.forRoot()],
   controllers: [ChatController],
@@ -20,6 +20,7 @@ import { ChatService } from './chat.service';
     UserService,
     AuthorizedSocketGuard,
     RoomedSocketGuard,
+    ValidateParticipantUserIdsPipe,
   ],
 })
 export class ChatModule {}
