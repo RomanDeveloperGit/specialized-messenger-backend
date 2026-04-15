@@ -1,3 +1,15 @@
+# [1.11.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.10.0...v1.11.0) (2026-04-15)
+
+
+### Bug Fixes
+
+* **seed:** fix drop db ([10ffaf9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/10ffaf9929bb9a4250967a0240c08b5acaadea44))
+
+
+### Features
+
+* add reference types and reference role tables for better perform and architecture ([c377536](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/c377536623095975b273c3b43f17456c4348ee9c))
+
 # [1.10.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.3...v1.10.0) (2026-04-15)
 
 
