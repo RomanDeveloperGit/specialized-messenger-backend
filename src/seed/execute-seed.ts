@@ -1,3 +1,5 @@
+import { execSync } from 'node:child_process';
+
 import { NestFactory } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
@@ -21,15 +23,7 @@ export const executeSeed = async () => {
   const userService = app.get(UserService);
   const chatService = app.get(ChatService);
 
-  await prismaService.$executeRawUnsafe(`
-    DO $$ DECLARE
-      r RECORD;
-    BEGIN
-      FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-        EXECUTE 'TRUNCATE TABLE "' || r.tablename || '" RESTART IDENTITY CASCADE';
-      END LOOP;
-    END $$;
-  `);
+  execSync('npx prisma migrate reset --force', { stdio: 'inherit' });
 
   const users: User[] = [];
 
