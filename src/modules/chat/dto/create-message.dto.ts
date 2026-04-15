@@ -1,4 +1,4 @@
-import { MessageTypeWithContentObject } from '@/modules/chat/chat.constants';
+import { MessageTypeNameWithContentObject } from '@/modules/chat/chat.constants';
 
 import { Id } from '@/shared/libs/ids';
 
@@ -6,4 +6,4 @@ import { Id } from '@/shared/libs/ids';
 export type CreateMessageRequest = {
   authorUserId?: Id;
   conversationId: Id;
-} & MessageTypeWithContentObject;
+} & MessageTypeNameWithContentObject;

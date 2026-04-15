@@ -3,9 +3,20 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
 import { Id, PublicId } from '@/shared/libs/ids';
-import { User as _User, UserRole } from '@/shared/modules/generated/prisma/client';
+import { User as _User } from '@/shared/modules/generated/prisma/client';
+import { UserGetPayload, UserInclude } from '@/shared/modules/generated/prisma/models';
 
-export class User implements Omit<_User, 'id' | 'password'> {
+import { UserRole } from './user-role.dto';
+
+const userInclude = {
+  role: true,
+} satisfies UserInclude;
+
+type PopulatedUser = UserGetPayload<{
+  include: typeof userInclude;
+}>;
+
+export class User implements Omit<_User, 'id' | 'password' | 'roleId'> {
   @Expose()
   id: Id;
 
@@ -23,8 +34,7 @@ export class User implements Omit<_User, 'id' | 'password'> {
 
   @Expose()
   @ApiProperty({
-    enum: UserRole,
-    example: UserRole.USER,
+    type: UserRole,
   })
   role: UserRole;
 
@@ -35,10 +45,11 @@ export class User implements Omit<_User, 'id' | 'password'> {
   updatedAt: Date;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor({ password, ...user }: _User) {
+  constructor({ password, roleId, ...user }: PopulatedUser) {
     Object.assign(this, {
       ...user,
       id: user.id.toString(),
+      role: new UserRole(user.role),
     });
   }
 }

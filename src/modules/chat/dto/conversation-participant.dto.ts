@@ -5,17 +5,21 @@ import { Expose } from 'class-transformer';
 import { User } from '@/modules/user/dto/user.dto';
 
 import { Id } from '@/shared/libs/ids';
-import {
-  ConversationParticipant as _ConversationParticipant,
-  ParticipantRole,
-} from '@/shared/modules/generated/prisma/client';
+import { ConversationParticipant as _ConversationParticipant } from '@/shared/modules/generated/prisma/client';
 import {
   ConversationParticipantGetPayload,
   ConversationParticipantInclude,
 } from '@/shared/modules/generated/prisma/models';
 
+import { ConversationParticipantRole } from './conversation-participant-role.dto';
+
 const conversationParticipantInclude = {
-  user: true,
+  user: {
+    include: {
+      role: true,
+    },
+  },
+  role: true,
 } satisfies ConversationParticipantInclude;
 
 type PopulatedConversationParticipant = ConversationParticipantGetPayload<{
@@ -24,7 +28,7 @@ type PopulatedConversationParticipant = ConversationParticipantGetPayload<{
 
 export class ConversationParticipant implements Omit<
   _ConversationParticipant,
-  'id' | 'conversationId' | 'userId'
+  'id' | 'conversationId' | 'userId' | 'roleId'
 > {
   @Expose()
   id: Id;
@@ -43,20 +47,21 @@ export class ConversationParticipant implements Omit<
 
   @Expose()
   @ApiProperty({
-    enum: ParticipantRole,
-    example: ParticipantRole.MEMBER,
+    type: ConversationParticipantRole,
   })
-  role: ParticipantRole;
+  role: ConversationParticipantRole;
 
   @Expose()
   joinedAt: Date;
 
-  constructor(conversationParticipant: PopulatedConversationParticipant) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor({ roleId, ...conversationParticipant }: PopulatedConversationParticipant) {
     Object.assign(this, {
       ...conversationParticipant,
       id: conversationParticipant.id.toString(),
       conversationId: conversationParticipant.conversationId.toString(),
       userId: conversationParticipant.userId.toString(),
+      role: new ConversationParticipantRole(conversationParticipant.role),
       user: new User(conversationParticipant.user),
     });
   }

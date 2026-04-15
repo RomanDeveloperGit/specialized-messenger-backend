@@ -12,7 +12,7 @@ import { Socket } from 'socket.io';
 
 import { UserService } from '@/modules/user/user.service';
 
-import { MessageType } from '@/shared/modules/generated/prisma/enums';
+import { MessageTypeName } from '@/shared/modules/generated/prisma/enums';
 
 import {
   WS_CONVERSATION_ROOM_PREFIX,
@@ -120,7 +120,7 @@ export class ChatGateway {
     const message = await this.chatService.createMessage({
       conversationId,
       authorUserId: userId,
-      type: MessageType.TEXT,
+      type: MessageTypeName.TEXT,
       content: {
         text: content,
       },

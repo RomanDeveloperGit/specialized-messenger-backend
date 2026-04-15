@@ -7,9 +7,9 @@ import { UserService } from '@/modules/user/user.service';
 
 import { Id, PublicId } from '@/shared/libs/ids';
 import {
-  ConversationType,
-  MessageType,
-  ParticipantRole,
+  ConversationParticipantRoleName,
+  ConversationTypeName,
+  MessageTypeName,
 } from '@/shared/modules/generated/prisma/client';
 import { PrismaService } from '@/shared/modules/prisma';
 
@@ -55,42 +55,71 @@ export class ChatService {
       data: {
         ...conversationData,
         publicId: uuidv7(),
-        name: conversationData.type === ConversationType.DIRECT ? null : conversationData.name,
+        name: conversationData.type === ConversationTypeName.DIRECT ? null : conversationData.name,
+        type: {
+          connect: {
+            name: conversationData.type,
+          },
+        },
         participants: {
           create: allParticipantUserIds.map((participantUserId) => ({
-            userId: participantUserId,
-            role:
-              participantUserId === BigInt(ownerId)
-                ? ParticipantRole.OWNER
-                : ParticipantRole.MEMBER,
+            user: {
+              connect: {
+                id: participantUserId,
+              },
+            },
+            role: {
+              connect: {
+                name:
+                  participantUserId === BigInt(ownerId)
+                    ? ConversationParticipantRoleName.OWNER
+                    : ConversationParticipantRoleName.MEMBER,
+              },
+            },
           })),
         },
         messages: {
-          createMany: {
-            data: [
-              {
-                publicId: uuidv7(),
-                type: MessageType.SYSTEM_CONVERSATION_CREATED,
-                content: JSON.stringify('' satisfies MessageContent<'SYSTEM_CONVERSATION_CREATED'>),
+          create: [
+            {
+              publicId: uuidv7(),
+              type: {
+                connect: {
+                  name: MessageTypeName.SYSTEM_CONVERSATION_CREATED,
+                },
               },
-              ...participantUserPublicIds.map((participantUserPublicId) => ({
-                publicId: uuidv7(),
-                type: MessageType.SYSTEM_USER_JOINED,
-                content: JSON.stringify({
-                  userPublicId: participantUserPublicId,
-                } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
-              })),
-            ],
-          },
+              content: JSON.stringify('' satisfies MessageContent<'SYSTEM_CONVERSATION_CREATED'>),
+            },
+            ...participantUserPublicIds.map((participantUserPublicId) => ({
+              publicId: uuidv7(),
+              type: {
+                connect: {
+                  name: MessageTypeName.SYSTEM_USER_JOINED,
+                },
+              },
+              content: JSON.stringify({
+                userPublicId: participantUserPublicId,
+              } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
+            })),
+          ],
         },
       },
       include: {
         participants: {
           include: {
-            user: true,
+            user: {
+              include: {
+                role: true,
+              },
+            },
+            role: true,
           },
         },
-        messages: true,
+        type: true,
+        messages: {
+          include: {
+            type: true,
+          },
+        },
       },
     });
 
@@ -116,10 +145,19 @@ export class ChatService {
       include: {
         participants: {
           include: {
-            user: true,
+            user: {
+              include: {
+                role: true,
+              },
+            },
+            role: true,
           },
         },
+        type: true,
         messages: {
+          include: {
+            type: true,
+          },
           orderBy: {
             createdAt: 'desc',
           },
@@ -156,10 +194,24 @@ export class ChatService {
       include: {
         participants: {
           include: {
-            user: true,
+            user: {
+              include: {
+                role: true,
+              },
+            },
+            role: true,
           },
         },
-        messages: true,
+        type: true,
+        messages: {
+          include: {
+            type: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: MIN_PRELOADED_MESSAGES_COUNT,
+        },
       },
     });
 
@@ -173,14 +225,26 @@ export class ChatService {
   }
 
   async createMessage(data: CreateMessageRequest): Promise<Message> {
+    const { id: typeId } = await this.prismaService.messageType.findUniqueOrThrow({
+      where: {
+        name: data.type,
+      },
+      select: {
+        id: true,
+      },
+    });
+
     const [message] = await this.prismaService.$transaction([
       this.prismaService.message.create({
         data: {
           publicId: uuidv7(),
           conversationId: BigInt(data.conversationId),
           authorUserId: data.authorUserId ? BigInt(data.authorUserId) : null,
-          type: data.type,
+          typeId,
           content: JSON.stringify(data.content),
+        },
+        include: {
+          type: true,
         },
       }),
       this.prismaService.conversation.update({

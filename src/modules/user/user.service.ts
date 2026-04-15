@@ -5,6 +5,7 @@ import { uuidv7 } from 'uuidv7';
 
 import { Id, PublicId } from '@/shared/libs/ids';
 import { ConfigService } from '@/shared/modules/config';
+import { UserRoleName } from '@/shared/modules/generated/prisma/enums';
 import { PrismaService } from '@/shared/modules/prisma';
 
 import { CreateUserRequest } from './dto/create-user.dto';
@@ -25,6 +26,14 @@ export class UserService {
         ...data,
         publicId: uuidv7(),
         password,
+        role: {
+          connect: {
+            name: UserRoleName.USER,
+          },
+        },
+      },
+      include: {
+        role: true,
       },
     });
 
@@ -36,6 +45,9 @@ export class UserService {
       where: {
         login: data.login,
       },
+      include: {
+        role: true,
+      },
     });
 
     if (!user) return null;
@@ -46,7 +58,11 @@ export class UserService {
   }
 
   async getAll(): Promise<User[]> {
-    const users = await this.prismaService.user.findMany();
+    const users = await this.prismaService.user.findMany({
+      include: {
+        role: true,
+      },
+    });
 
     return users.map((user) => new User(user));
   }

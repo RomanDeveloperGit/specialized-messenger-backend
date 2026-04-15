@@ -1,5 +1,5 @@
 import { PublicId } from '@/shared/libs/ids';
-import { MessageType } from '@/shared/modules/generated/prisma/enums';
+import { MessageTypeName } from '@/shared/modules/generated/prisma/enums';
 
 import {
   FromClientJoinConversationEventBody,
@@ -16,24 +16,24 @@ export const ERROR_CONVERSATION_NOT_FOUND = 'ERROR_CONVERSATION_NOT_FOUND';
 export const WS_PERSONAL_USER_ROOM_PREFIX = 'user';
 export const WS_CONVERSATION_ROOM_PREFIX = 'conversation';
 
-export type MessageContentByTypeMap = {
-  [MessageType.SYSTEM_CONVERSATION_CREATED]: '';
-  [MessageType.SYSTEM_USER_JOINED]: {
+export type MessageContentByTypeNameMap = {
+  [MessageTypeName.SYSTEM_CONVERSATION_CREATED]: '';
+  [MessageTypeName.SYSTEM_USER_JOINED]: {
     // Чтобы не было проблем с сериализацией, будем хранить не Id (BigInt), а PublicId (uuid)
     // Он все равно нужен только для UI
     userPublicId: PublicId;
   };
-  [MessageType.TEXT]: {
+  [MessageTypeName.TEXT]: {
     text: string;
   };
 };
 
-export type MessageContent<T extends MessageType> = MessageContentByTypeMap[T];
-export type MessageContents = MessageContent<MessageType>;
+export type MessageContent<T extends MessageTypeName> = MessageContentByTypeNameMap[T];
+export type MessageContents = MessageContent<MessageTypeName>;
 
-export type MessageTypeWithContentObject = {
-  [T in MessageType]: { type: T; content: MessageContent<T> };
-}[MessageType];
+export type MessageTypeNameWithContentObject = {
+  [T in MessageTypeName]: { type: T; content: MessageContent<T> };
+}[MessageTypeName];
 
 export const CHAT_EVENT = {
   CONVERSATION_CREATED: 'chat.conversation.created',

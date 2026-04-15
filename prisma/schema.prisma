@@ -20,9 +20,17 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  USER
+enum UserRoleName {
   ADMIN
+  USER
+}
+
+model UserRole {
+  id        BigInt       @id @db.BigInt
+  name      UserRoleName @unique
+  createdAt DateTime     @default(now()) @db.Timestamptz
+
+  users User[]
 }
 
 model User {
@@ -32,90 +40,124 @@ model User {
   lastName  String   @db.VarChar(100)
   login     String   @unique @db.VarChar(255)
   password  String   @db.VarChar(255)
-  role      UserRole @default(USER)
+  roleId    BigInt   @db.BigInt
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 
+  role            UserRole                  @relation(fields: [roleId], references: [id])
   sentInvitations Invitation[]
   participants    ConversationParticipant[]
   messages        Message[]
 }
 
-enum InvitationStatus {
+enum InvitationStatusName {
   PENDING
   ACCEPTED
 }
 
-model Invitation {
-  id           BigInt           @id @default(autoincrement()) @db.BigInt
-  publicId     String           @unique @db.Uuid
-  firstName    String           @db.VarChar(100)
-  lastName     String           @db.VarChar(100)
-  authorUserId BigInt           @db.BigInt
-  status       InvitationStatus @default(PENDING)
-  createdAt    DateTime         @default(now()) @db.Timestamptz
+model InvitationStatus {
+  id        BigInt               @id @db.BigInt
+  name      InvitationStatusName @unique
+  createdAt DateTime             @default(now()) @db.Timestamptz
 
-  author User @relation(fields: [authorUserId], references: [id])
+  invitations Invitation[]
 }
 
-enum ConversationType {
+model Invitation {
+  id           BigInt   @id @default(autoincrement()) @db.BigInt
+  publicId     String   @unique @db.Uuid
+  firstName    String   @db.VarChar(100)
+  lastName     String   @db.VarChar(100)
+  authorUserId BigInt   @db.BigInt
+  statusId     BigInt   @db.BigInt
+  createdAt    DateTime @default(now()) @db.Timestamptz
+
+  author User             @relation(fields: [authorUserId], references: [id])
+  status InvitationStatus @relation(fields: [statusId], references: [id])
+}
+
+enum ConversationTypeName {
   DIRECT
   GROUP
 }
 
-model Conversation {
-  id        BigInt           @id @default(autoincrement()) @db.BigInt
-  publicId  String           @unique @db.Uuid
-  name      String?          @db.VarChar(100)
-  type      ConversationType
-  createdAt DateTime         @default(now()) @db.Timestamptz
-  updatedAt DateTime         @updatedAt @db.Timestamptz
+model ConversationType {
+  id        BigInt               @id @db.BigInt
+  name      ConversationTypeName @unique
+  createdAt DateTime             @default(now()) @db.Timestamptz
 
+  conversations Conversation[]
+}
+
+model Conversation {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  publicId  String   @unique @db.Uuid
+  name      String?  @db.VarChar(100)
+  typeId    BigInt   @db.BigInt
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  type         ConversationType          @relation(fields: [typeId], references: [id])
   participants ConversationParticipant[]
   messages     Message[]
 
   @@index([updatedAt(sort: Desc)])
 }
 
-enum ParticipantRole {
+enum ConversationParticipantRoleName {
   OWNER
   MEMBER
 }
 
-model ConversationParticipant {
-  id             BigInt          @id @default(autoincrement())
-  conversationId BigInt          @db.BigInt
-  userId         BigInt          @db.BigInt
-  role           ParticipantRole @default(MEMBER)
-  joinedAt       DateTime        @default(now()) @db.Timestamptz
+model ConversationParticipantRole {
+  id        BigInt                          @id @db.BigInt
+  name      ConversationParticipantRoleName @unique
+  createdAt DateTime                        @default(now()) @db.Timestamptz
 
-  conversation Conversation @relation(fields: [conversationId], references: [id])
-  user         User         @relation(fields: [userId], references: [id])
+  conversationParticipants ConversationParticipant[]
+}
+
+model ConversationParticipant {
+  id             BigInt   @id @default(autoincrement()) @db.BigInt
+  conversationId BigInt   @db.BigInt
+  userId         BigInt   @db.BigInt
+  roleId         BigInt   @db.BigInt
+  joinedAt       DateTime @default(now()) @db.Timestamptz
+
+  conversation Conversation                @relation(fields: [conversationId], references: [id])
+  user         User                        @relation(fields: [userId], references: [id])
+  role         ConversationParticipantRole @relation(fields: [roleId], references: [id])
 
   @@unique([conversationId, userId])
   @@index([userId])
 }
 
-enum MessageType {
+enum MessageTypeName {
   SYSTEM_CONVERSATION_CREATED
   SYSTEM_USER_JOINED
   TEXT
 }
 
+model MessageType {
+  id        BigInt          @id @db.BigInt
+  name      MessageTypeName @unique
+  createdAt DateTime        @default(now()) @db.Timestamptz
+
+  messages Message[]
+}
+
 model Message {
-  id             BigInt      @id @default(autoincrement()) @db.BigInt
-  publicId       String      @unique @db.Uuid
-  conversationId BigInt      @db.BigInt
-  authorUserId   BigInt?     @db.BigInt
-  type           MessageType
-  content        String      @db.VarChar(1000)
-  createdAt      DateTime    @default(now()) @db.Timestamptz
+  id             BigInt   @id @default(autoincrement()) @db.BigInt
+  publicId       String   @unique @db.Uuid
+  conversationId BigInt   @db.BigInt
+  authorUserId   BigInt?  @db.BigInt
+  typeId         BigInt   @db.BigInt
+  content        String   @db.VarChar(1000)
+  createdAt      DateTime @default(now()) @db.Timestamptz
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
   user         User?        @relation(fields: [authorUserId], references: [id])
+  type         MessageType  @relation(fields: [typeId], references: [id])
 
   @@index([conversationId, createdAt(sort: Desc)])
 }
-
-// TODO:
-// 1. Завести отдельные таблицы под типы вспомогательные в БД (MessageType, роли и тд)

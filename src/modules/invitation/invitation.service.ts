@@ -5,7 +5,7 @@ import { uuidv7 } from 'uuidv7';
 import { UserService } from '@/modules/user/user.service';
 
 import { Id, PublicId } from '@/shared/libs/ids';
-import { InvitationStatus } from '@/shared/modules/generated/prisma/enums';
+import { InvitationStatusName } from '@/shared/modules/generated/prisma/enums';
 import { PrismaService } from '@/shared/modules/prisma';
 
 import { AcceptInvitationByPublicIdRequest } from './dto/accept-invitation-by-public-id.dto';
@@ -25,7 +25,19 @@ export class InvitationService {
       data: {
         ...data,
         publicId: uuidv7(),
-        authorUserId: BigInt(authorUserId),
+        status: {
+          connect: {
+            name: InvitationStatusName.PENDING,
+          },
+        },
+        author: {
+          connect: {
+            id: BigInt(authorUserId),
+          },
+        },
+      },
+      include: {
+        status: true,
       },
     });
 
@@ -36,6 +48,9 @@ export class InvitationService {
     const invitation = await this.prismaService.invitation.findUnique({
       where: {
         publicId,
+      },
+      include: {
+        status: true,
       },
     });
 
@@ -54,7 +69,7 @@ export class InvitationService {
   ): Promise<void> {
     const invitation = await this.getByPublicId(publicId);
 
-    if (invitation.status !== InvitationStatus.PENDING) {
+    if (invitation.status.name !== InvitationStatusName.PENDING) {
       throw new BadRequestException({
         code: ERROR_INVITATION_NOT_PENDING,
       });
@@ -72,7 +87,11 @@ export class InvitationService {
         id: BigInt(invitation.id),
       },
       data: {
-        status: InvitationStatus.ACCEPTED,
+        status: {
+          connect: {
+            name: InvitationStatusName.ACCEPTED,
+          },
+        },
       },
     });
   }

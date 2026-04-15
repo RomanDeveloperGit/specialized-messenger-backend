@@ -5,11 +5,22 @@ import { Expose } from 'class-transformer';
 import { MessageContents } from '@/modules/chat/chat.constants';
 
 import { Id, PublicId } from '@/shared/libs/ids';
-import { Message as _Message, MessageType } from '@/shared/modules/generated/prisma/client';
+import { Message as _Message } from '@/shared/modules/generated/prisma/client';
+import { MessageGetPayload, MessageInclude } from '@/shared/modules/generated/prisma/models';
+
+import { MessageType } from './message-type.dto';
+
+const messageInclude = {
+  type: true,
+} satisfies MessageInclude;
+
+type PopulatedMessage = MessageGetPayload<{
+  include: typeof messageInclude;
+}>;
 
 export class Message implements Omit<
   _Message,
-  'id' | 'conversationId' | 'authorUserId' | 'content'
+  'id' | 'conversationId' | 'authorUserId' | 'content' | 'typeId'
 > {
   @Expose()
   id: Id;
@@ -25,8 +36,7 @@ export class Message implements Omit<
 
   @Expose()
   @ApiProperty({
-    enum: MessageType,
-    example: MessageType.TEXT,
+    type: MessageType,
   })
   type: MessageType;
 
@@ -39,12 +49,14 @@ export class Message implements Omit<
   @Expose()
   createdAt: Date;
 
-  constructor(message: _Message) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor({ typeId, ...message }: PopulatedMessage) {
     Object.assign(this, {
       ...message,
       id: message.id.toString(),
       conversationId: message.conversationId.toString(),
       authorUserId: message.authorUserId?.toString() || null,
+      type: new MessageType(message.type),
       content: JSON.parse(message.content),
     });
   }

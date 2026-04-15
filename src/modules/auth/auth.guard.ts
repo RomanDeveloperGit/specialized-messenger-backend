@@ -11,7 +11,7 @@ import { Request } from 'express';
 
 import { UserService } from '@/modules/user/user.service';
 
-import { UserRole } from '@/shared/modules/generated/prisma/enums';
+import { UserRoleName } from '@/shared/modules/generated/prisma/enums';
 
 import { AuthorizedRequest } from './auth.types';
 
@@ -52,7 +52,7 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
     );
 
-    if (options?.checkAdminRole && user.role !== UserRole.ADMIN) {
+    if (options?.checkAdminRole && user.role.name !== UserRoleName.ADMIN) {
       throw new ForbiddenException('Admin role required');
     }
 
