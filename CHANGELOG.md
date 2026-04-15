@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.3...v1.10.0) (2026-04-15)
+
+
+### Features
+
+* perform db ([5f14f86](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/5f14f86b830dc1b32759d95938353b14ed1126a5))
+
 ## [1.9.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.9.2...v1.9.3) (2026-04-13)
 
 
