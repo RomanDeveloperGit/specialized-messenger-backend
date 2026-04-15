@@ -1,7 +1,4 @@
-import { execSync } from 'node:child_process';
-
 import { NestFactory } from '@nestjs/core';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { ChatService } from '@/modules/chat/chat.service';
 import { User } from '@/modules/user/dto/user.dto';
@@ -12,18 +9,15 @@ import { PrismaService } from '@/shared/modules/prisma';
 import { AppModule } from '@/app.module';
 
 import { USER_MOCKS } from './mocks/users';
+import { prepareStep } from './prepare-step';
 
 export const executeSeed = async () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  EventEmitter2.prototype.emit = () => {};
+  prepareStep();
 
   const app = await NestFactory.createApplicationContext(AppModule);
   const prismaService = app.get(PrismaService);
   const userService = app.get(UserService);
   const chatService = app.get(ChatService);
-
-  execSync('npx prisma migrate reset --force', { stdio: 'inherit' });
 
   const users: User[] = [];
 
