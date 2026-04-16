@@ -6,7 +6,6 @@
     "name": "Roman Sukhinin",
     "email": "roman.developer@mail.ru"
   },
-  "private": false,
   "license": "MIT",
   "scripts": {
     "nest:module": "nest g resource --no-spec",
@@ -84,7 +83,8 @@
     "typescript": "^5.1.3"
   },
   "engines": {
-    "node": ">=20.19.6",
-    "yarn": ">=1.22.22"
-  }
+    "node": ">=25.9.0",
+    "yarn": ">=4.13.0"
+  },
+  "packageManager": "yarn@4.13.0"
 }
