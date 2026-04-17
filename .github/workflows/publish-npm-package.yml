@@ -58,6 +58,9 @@ jobs:
           {
             "name": "@specialized-messenger/api",
             "version": "${VERSION}",
+            "publishConfig": {
+              "access": "public"
+            }
             "description": "Auto-generated API types and constants",
             "files": ["api/", "constants/"],
             "license": "MIT"
