@@ -66,6 +66,9 @@ jobs:
             "license": "MIT"
           }
           EOF
+      - run: npm whoami
+        env:сш
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish package to npm
         working-directory: npm-package
         run: npm publish --access public
