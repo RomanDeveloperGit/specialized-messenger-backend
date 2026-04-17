@@ -40,3 +40,6 @@
   },
   repliedTo: "2" <!-- айдишник: сообщение, на которое ответили -->
 }
+29. DB.Message.content: может делать null при type = SYSTEM_CONVERSATION_CREATED?
+
+30. ESLint - включить отключенные правила
