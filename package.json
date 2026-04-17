@@ -9,10 +9,10 @@
   "license": "MIT",
   "scripts": {
     "nest:module": "nest g resource --no-spec",
-    "migrate:create": "prisma migrate dev --create-only",
+    "migrate:create": "prisma migrate dev --create-only && yarn setup:dev",
     "migrate:deploy": "prisma migrate deploy",
-    "setup:dev": "yarn && cross-env NODE_ENV=development prisma generate",
-    "setup:prod": "yarn && cross-env NODE_ENV=production prisma generate",
+    "setup:dev": "cross-env NODE_ENV=development prisma generate",
+    "setup:prod": "cross-env NODE_ENV=production prisma generate",
     "seed:execute": "ts-node -r tsconfig-paths/register src/seed",
     "ts:check": "tsc --noEmit",
     "lint:check": "eslint \"{src,apps,libs}/**/*.ts\"",

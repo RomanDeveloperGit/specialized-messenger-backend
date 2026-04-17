@@ -26,7 +26,9 @@ jobs:
       - name: Prepare production environment
         run: cp .env.example .env.production
       - name: Install dependencies and generate Prisma client
-        run: yarn setup:prod
+        run: |
+          yarn
+          yarn setup:prod
       - name: Run TypeScript and ESLint checks
         run: |
           yarn ts:check
