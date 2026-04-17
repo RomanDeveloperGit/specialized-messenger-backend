@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.12.0...v1.12.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* **ci:** fix package name ([e168916](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/e168916f55e6e716ee97c65819d77c37b30fe0f1))
+
 # [1.12.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.11.0...v1.12.0) (2026-04-17)
 
 
