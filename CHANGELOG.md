@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.12.7...v1.13.0) (2026-04-17)
+
+
+### Features
+
+* **ws/auth:** add authorization header ([afdb8ea](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/afdb8eaef6e26c08b0af439ccbab59184be6f222))
+
 ## [1.12.7](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.12.6...v1.12.7) (2026-04-17)
 
 
