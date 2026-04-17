@@ -67,7 +67,7 @@ jobs:
           }
           EOF
       - run: npm whoami
-        env:сш
+        env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish package to npm
         working-directory: npm-package
