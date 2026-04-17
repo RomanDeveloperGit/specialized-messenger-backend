@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.12.1...v1.12.2) (2026-04-17)
+
+
+### Bug Fixes
+
+* **ci:** fix publish metadata ([ce6ff97](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/ce6ff977f2fe5db7314027597590faeef3d9dca0))
+
 ## [1.12.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.12.0...v1.12.1) (2026-04-17)
 
 
