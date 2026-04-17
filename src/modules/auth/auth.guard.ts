@@ -11,6 +11,7 @@ import { Request } from 'express';
 
 import { UserService } from '@/modules/user/user.service';
 
+import { parseAuthorizationHeader } from '@/shared/libs/authorization-header';
 import { UserRoleName } from '@/shared/modules/generated/prisma/enums';
 
 import { AuthorizedRequest } from './auth.types';
@@ -39,9 +40,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const { login, password } = this.parseCredentials(authHeader);
+    const credentials = parseAuthorizationHeader(authHeader);
 
-    const user = await this.userService.getByCredentials({ login, password });
+    if (!credentials) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userService.getByCredentials(credentials);
 
     if (!user) {
       throw new ForbiddenException();
@@ -59,22 +64,5 @@ export class AuthGuard implements CanActivate {
     (request as AuthorizedRequest).user = user;
 
     return true;
-  }
-
-  private parseCredentials(rawHeader: string): {
-    login: string;
-    password: string;
-  } {
-    const header = Buffer.from(rawHeader.substring(6), 'base64').toString('utf-8');
-    const [login, password] = header.split(':');
-
-    if (!login || !password) {
-      throw new UnauthorizedException();
-    }
-
-    return {
-      login,
-      password,
-    };
   }
 }

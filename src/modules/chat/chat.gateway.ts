@@ -12,6 +12,7 @@ import { Socket } from 'socket.io';
 
 import { UserService } from '@/modules/user/user.service';
 
+import { parseAuthorizationHeader } from '@/shared/libs/authorization-header';
 import { MessageTypeName } from '@/shared/modules/generated/prisma/enums';
 
 import {
@@ -37,17 +38,21 @@ export class ChatGateway {
   ) {}
 
   async handleConnection(client: Socket) {
-    const { login, password } = client.handshake.auth;
+    const authHeader = client.handshake.headers.authorization;
 
-    if (!login || !password) {
+    if (!authHeader) {
       client.disconnect();
       return;
     }
 
-    const user = await this.userService.getByCredentials({
-      login,
-      password,
-    });
+    const credentials = parseAuthorizationHeader(authHeader);
+
+    if (!credentials) {
+      client.disconnect();
+      return;
+    }
+
+    const user = await this.userService.getByCredentials(credentials);
 
     if (!user) {
       client.disconnect();
