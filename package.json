@@ -1,7 +1,7 @@
 {
   "name": "specialized-messenger-backend",
   "description": "An application for professionals that allows them to communicate with their consumers",
-  "version": "1.12.4",
+  "version": "1.12.5",
   "author": {
     "name": "Roman Sukhinin",
     "email": "roman.developer@mail.ru"
