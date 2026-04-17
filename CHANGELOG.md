@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.1...v1.13.2) (2026-04-17)
+
+
+### Bug Fixes
+
+* **ci:** delete unnecessary code ([788a849](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/788a8493ac08b0c52a883d6503b6cc8643d768a1))
+
 ## [1.13.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.0...v1.13.1) (2026-04-17)
 
 
