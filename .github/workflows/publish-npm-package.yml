@@ -25,7 +25,9 @@ jobs:
       - name: Prepare environment file
         run: cp .env.example .env.production
       - name: Install dependencies and generate Prisma client
-        run: yarn setup:prod
+        run: |
+          yarn
+          yarn setup:prod
       - name: Build project
         run: yarn build
       - name: Start server in background
