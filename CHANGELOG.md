@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.11.0...v1.12.0) (2026-04-17)
+
+
+### Features
+
+* up node and yarn versions ([2cb11a9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/2cb11a9de6e104799774ef8caf8af86d20264599))
+
 # [1.11.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.10.0...v1.11.0) (2026-04-15)
 
 
