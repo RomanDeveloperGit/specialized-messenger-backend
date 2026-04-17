@@ -3,8 +3,6 @@ An application for professionals that allows them to communicate with their cons
 
 Main Stack: TS, Nest, PostgreSQL, Prisma
 
-⚠️ Add `.env*` files to `.gitignore` and never commit secrets to the repository.
-
 
 ## [From Nest README]
 
