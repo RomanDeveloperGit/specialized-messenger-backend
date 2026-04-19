@@ -67,8 +67,8 @@ jobs:
             | "trace";
 
           type ReplacePathParams<T extends string> =
-            T extends \`\${infer Start}/{\${infer _Param}}\${infer End}\`
-              ? \`\${Start}/\${string}\${ReplacePathParams<End>}\`
+            T extends `${infer Start}/{${infer _Param}}${infer End}`
+              ? `${Start}/${string}${ReplacePathParams<End>}`
               : T;
 
           type OperationResponse<OpKey extends keyof operations> =
