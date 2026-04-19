@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.2...v1.13.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **npm:** refactor files ([a72d413](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/a72d413eb61ebe8463425ea7f766988410b946f9))
+
 ## [1.13.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.1...v1.13.2) (2026-04-17)
 
 
