@@ -44,13 +44,60 @@ jobs:
           done
       - name: Generate TypeScript types from OpenAPI
         run: |
+          # Создаем папку для спецификаций
           mkdir -p npm-package/specs
+
+          # Генерируем типы из OpenAPI
           npx openapi-typescript http://localhost:7070/docs-json --output npm-package/specs/types.ts
 
+          # Создаем index.ts с нашими типами и вспомогательными типами
           cat > npm-package/specs/index.ts << 'EOF'
-          import { components } from './types';
+          import type { components, paths, operations } from './types';
 
           export type Dto = components['schemas'];
+
+          type HttpMethods =
+            | "get"
+            | "post"
+            | "put"
+            | "patch"
+            | "delete"
+            | "options"
+            | "head"
+            | "trace";
+
+          type ReplacePathParams<T extends string> =
+            T extends \`\${infer Start}/{\${infer _Param}}\${infer End}\`
+              ? \`\${Start}/\${string}\${ReplacePathParams<End>}\`
+              : T;
+
+          type OperationResponse<OpKey extends keyof operations> =
+            operations[OpKey]['responses'] extends Record<number, infer R>
+              ? R extends { content: infer C }
+                ? 'application/json' extends keyof C
+                  ? C['application/json']
+                  : never
+                : never
+              : never;
+
+          export type OperationInfo<OpKey extends keyof operations> = {
+            body: operations[OpKey]["requestBody"] extends never
+              ? undefined
+              : operations[OpKey]["requestBody"];
+            search: operations[OpKey]['parameters']['query'];
+            path: {
+              [P in keyof paths]: {
+                [M in HttpMethods]: M extends keyof paths[P]
+                  ? paths[P][M] extends operations[OpKey]
+                    ? P extends string
+                      ? ReplacePathParams<P>
+                      : never
+                    : never
+                  : never;
+              }[HttpMethods];
+            }[keyof paths];
+            response: OperationResponse<OpKey>;
+          };
           EOF
       - name: Copy constants to npm package
         run: |
