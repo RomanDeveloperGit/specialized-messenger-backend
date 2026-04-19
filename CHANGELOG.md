@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.3...v1.13.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* **ci:** add types for npm package ([e859f95](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/e859f95592c915967e6d1960c633115c3eb46753))
+
 ## [1.13.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.2...v1.13.3) (2026-04-19)
 
 
