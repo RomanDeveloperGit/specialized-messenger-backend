@@ -8,8 +8,12 @@ import { Id, PublicId } from '@/shared/libs/ids';
 import { InvitationStatusName } from '@/shared/modules/generated/prisma/enums';
 import { PrismaService } from '@/shared/modules/prisma';
 
-import { AcceptInvitationByPublicIdRequest } from './dto/accept-invitation-by-public-id.dto';
+import {
+  AcceptInvitationByPublicIdQuery,
+  AcceptInvitationByPublicIdRequest,
+} from './dto/accept-invitation-by-public-id.dto';
 import { CreateInvitationRequest } from './dto/create-invitation.dto';
+import { GetInvitationByPublicIdQuery } from './dto/get-invitation-by-public-id.dto';
 import { Invitation } from './dto/invitation.dto';
 import { ERROR_INVITATION_NOT_FOUND, ERROR_INVITATION_NOT_PENDING } from './invitation.constants';
 
@@ -44,10 +48,15 @@ export class InvitationService {
     return new Invitation(invitation);
   }
 
-  async getByPublicId(publicId: PublicId): Promise<Invitation> {
+  async getByPublicId(
+    publicId: PublicId,
+    query: GetInvitationByPublicIdQuery,
+  ): Promise<Invitation> {
     const invitation = await this.prismaService.invitation.findUnique({
       where: {
         publicId,
+        firstName: query.firstName,
+        lastName: query.lastName,
       },
       include: {
         status: true,
@@ -60,20 +69,21 @@ export class InvitationService {
       });
     }
 
+    if (invitation.status.name !== InvitationStatusName.PENDING) {
+      throw new BadRequestException({
+        code: ERROR_INVITATION_NOT_PENDING,
+      });
+    }
+
     return new Invitation(invitation);
   }
 
   async acceptByPublicId(
     publicId: PublicId,
     data: AcceptInvitationByPublicIdRequest,
+    query: AcceptInvitationByPublicIdQuery,
   ): Promise<void> {
-    const invitation = await this.getByPublicId(publicId);
-
-    if (invitation.status.name !== InvitationStatusName.PENDING) {
-      throw new BadRequestException({
-        code: ERROR_INVITATION_NOT_PENDING,
-      });
-    }
+    const invitation = await this.getByPublicId(publicId, query);
 
     await this.userService.create({
       firstName: invitation.firstName,
@@ -85,6 +95,8 @@ export class InvitationService {
     await this.prismaService.invitation.update({
       where: {
         id: BigInt(invitation.id),
+        firstName: invitation.firstName,
+        lastName: invitation.lastName,
       },
       data: {
         status: {
