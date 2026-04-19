@@ -81,9 +81,11 @@ jobs:
               : never;
 
           export type OperationInfo<OpKey extends keyof operations> = {
-            body: operations[OpKey]["requestBody"] extends never
-              ? undefined
-              : operations[OpKey]["requestBody"];
+            body: operations[OpKey]["requestBody"] extends { content: infer C }
+              ? 'application/json' extends keyof C
+                ? C['application/json']
+                : never
+              : undefined;
             search: operations[OpKey]['parameters']['query'];
             path: {
               [P in keyof paths]: {
