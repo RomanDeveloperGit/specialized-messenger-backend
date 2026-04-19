@@ -44,8 +44,14 @@ jobs:
           done
       - name: Generate TypeScript types from OpenAPI
         run: |
-          mkdir -p npm-package/api
-          npx openapi-typescript http://localhost:7070/docs-json --output npm-package/api/types.ts
+          mkdir -p npm-package/specs
+          npx openapi-typescript http://localhost:7070/docs-json --output npm-package/specs/types.ts
+
+          cat > npm-package/specs/index.ts << 'EOF'
+          import { components } from './types';
+
+          export type Dto = components['schemas'];
+          EOF
       - name: Copy constants to npm package
         run: |
           mkdir -p npm-package/constants
@@ -62,13 +68,10 @@ jobs:
               "access": "public"
             },
             "description": "Auto-generated API types and constants",
-            "files": ["api/", "constants/"],
+            "files": ["specs/", "constants/"],
             "license": "MIT"
           }
           EOF
-      - run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish package to npm
         working-directory: npm-package
         run: npm publish --access public
