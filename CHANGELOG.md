@@ -1,3 +1,10 @@
+## [1.13.7](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.6...v1.13.7) (2026-04-19)
+
+
+### Bug Fixes
+
+* **invitation:** add query params for more security ([a8eee13](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/a8eee13e5bf515553df0e50f1e37e7d6bec2b955))
+
 ## [1.13.6](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.5...v1.13.6) (2026-04-19)
 
 
