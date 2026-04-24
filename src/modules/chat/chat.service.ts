@@ -118,6 +118,11 @@ export class ChatService {
         messages: {
           include: {
             type: true,
+            author: {
+              include: {
+                role: true,
+              },
+            },
           },
         },
       },
@@ -157,6 +162,11 @@ export class ChatService {
         messages: {
           include: {
             type: true,
+            author: {
+              include: {
+                role: true,
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
@@ -206,6 +216,11 @@ export class ChatService {
         messages: {
           include: {
             type: true,
+            author: {
+              include: {
+                role: true,
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
@@ -245,6 +260,11 @@ export class ChatService {
         },
         include: {
           type: true,
+          author: {
+            include: {
+              role: true,
+            },
+          },
         },
       }),
       this.prismaService.conversation.update({

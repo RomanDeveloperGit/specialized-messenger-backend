@@ -28,6 +28,11 @@ const conversationInclude = {
   messages: {
     include: {
       type: true,
+      author: {
+        include: {
+          role: true,
+        },
+      },
     },
   },
 } satisfies ConversationInclude;

@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
 import { MessageContents } from '@/modules/chat/chat.constants';
+import { User } from '@/modules/user/dto/user.dto';
 
 import { Id, PublicId } from '@/shared/libs/ids';
 import { Message as _Message } from '@/shared/modules/generated/prisma/client';
@@ -12,6 +13,11 @@ import { MessageType } from './message-type.dto';
 
 const messageInclude = {
   type: true,
+  author: {
+    include: {
+      role: true,
+    },
+  },
 } satisfies MessageInclude;
 
 type PopulatedMessage = MessageGetPayload<{
@@ -32,7 +38,10 @@ export class Message implements Omit<
   conversationId: Id;
 
   @Expose()
-  authorUserId: Id | null;
+  @ApiProperty({
+    type: User,
+  })
+  author: User | null;
 
   @Expose()
   @ApiProperty({
@@ -50,12 +59,12 @@ export class Message implements Omit<
   createdAt: Date;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor({ typeId, ...message }: PopulatedMessage) {
+  constructor({ typeId, authorUserId, ...message }: PopulatedMessage) {
     Object.assign(this, {
       ...message,
       id: message.id.toString(),
       conversationId: message.conversationId.toString(),
-      authorUserId: message.authorUserId?.toString() || null,
+      author: message.author ? new User(message.author) : null,
       type: new MessageType(message.type),
       content: JSON.parse(message.content),
     });

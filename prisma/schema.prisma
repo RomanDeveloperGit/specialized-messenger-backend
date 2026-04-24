@@ -156,7 +156,7 @@ model Message {
   createdAt      DateTime @default(now()) @db.Timestamptz
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
-  user         User?        @relation(fields: [authorUserId], references: [id])
+  author       User?        @relation(fields: [authorUserId], references: [id])
   type         MessageType  @relation(fields: [typeId], references: [id])
 
   @@index([conversationId, createdAt(sort: Desc)])
