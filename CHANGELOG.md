@@ -1,3 +1,10 @@
+## [1.13.8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.7...v1.13.8) (2026-04-24)
+
+
+### Bug Fixes
+
+* **chat/message:** add author in entity ([ac74f13](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/ac74f13115d528b576d4b12f76fe912563c53bc7))
+
 ## [1.13.7](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.6...v1.13.7) (2026-04-19)
 
 
