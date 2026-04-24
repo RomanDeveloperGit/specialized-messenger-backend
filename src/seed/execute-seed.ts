@@ -68,6 +68,11 @@ export const executeSeed = async () => {
     },
   });
 
+  console.dir(await prismaService.user.findMany(), { depth: null });
+  console.dir(await prismaService.invitation.findMany(), { depth: null });
+  console.dir(await prismaService.conversation.findMany(), { depth: null });
+  console.dir(await prismaService.message.findMany(), { depth: null });
+
   console.log('Seeding complete!');
 
   await prismaService.$disconnect();

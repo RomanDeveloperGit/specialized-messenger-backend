@@ -17,7 +17,7 @@ export const USER_MOCKS: CreateUserRequest[] = [
     firstName: 'Роман',
     lastName: 'Роман',
     login: 'roman',
-    password: 'roman',
+    password: 'romann',
   },
   {
     firstName: 'Артём',
