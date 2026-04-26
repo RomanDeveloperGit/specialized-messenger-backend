@@ -5,13 +5,13 @@ export const USER_MOCKS: CreateUserRequest[] = [
     firstName: 'Admin',
     lastName: 'Admin',
     login: 'admin',
-    password: 'admin',
+    password: 'adminn',
   },
   {
     firstName: 'User',
     lastName: 'User',
     login: 'user',
-    password: 'user',
+    password: 'userrr',
   },
   {
     firstName: 'Роман',
@@ -23,6 +23,6 @@ export const USER_MOCKS: CreateUserRequest[] = [
     firstName: 'Артём',
     lastName: 'Артём',
     login: 'artem',
-    password: 'artem',
+    password: 'artemm',
   },
 ];

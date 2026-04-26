@@ -45,13 +45,13 @@ export const executeSeed = async () => {
     await invitationService.create(invitation, users[0].id);
   }
 
-  const conversation = await chatService.createConversation(users[0].id, {
+  const firstConversation = await chatService.createConversation(users[0].id, {
     type: 'DIRECT',
     participantUserIds: [users[1].publicId],
   });
 
   await chatService.createMessage({
-    conversationId: conversation.id,
+    conversationId: firstConversation.id,
     authorUserId: users[0].id,
     type: 'TEXT',
     content: {
@@ -59,12 +59,44 @@ export const executeSeed = async () => {
     },
   });
 
+  for (let i = 0; i < 50; i++) {
+    await chatService.createMessage({
+      conversationId: firstConversation.id,
+      authorUserId: users[1].id,
+      type: 'TEXT',
+      content: {
+        text: 'Принимаю привет от админа!',
+      },
+    });
+  }
+
+  await chatService.createConversation(users[0].id, {
+    type: 'DIRECT',
+    participantUserIds: [users[3].publicId],
+  });
+
+  await chatService.createConversation(users[0].id, {
+    type: 'GROUP',
+    name: 'Chat 123',
+    participantUserIds: [users[2].publicId, users[3].publicId],
+  });
+  await chatService.createConversation(users[0].id, {
+    type: 'GROUP',
+    name: 'Chat 234',
+    participantUserIds: [],
+  });
+
+  const secondConversation = await chatService.createConversation(users[2].id, {
+    type: 'DIRECT',
+    participantUserIds: [users[0].publicId],
+  });
+
   await chatService.createMessage({
-    conversationId: conversation.id,
-    authorUserId: users[1].id,
+    conversationId: secondConversation.id,
+    authorUserId: users[0].id,
     type: 'TEXT',
     content: {
-      text: 'Принимаю привет от админа!',
+      text: 'Передаю привет от админа второй раз!',
     },
   });
 
