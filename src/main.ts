@@ -24,6 +24,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: configService.get('consumerOrigin'),
+    credentials: false,
   });
 
   if (configService.get('hasDocs')) {

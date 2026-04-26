@@ -15,6 +15,6 @@ export interface AuthorizedSocket extends Socket<WSClientToServerEvents, WSServe
 
 export interface RoomedSocket extends AuthorizedSocket {
   data: AuthorizedSocket['data'] & {
-    currentConversation: Pick<Conversation, 'id' | 'participants'>;
+    currentConversation: Pick<Conversation, 'id' | 'publicId' | 'participants'>;
   };
 }

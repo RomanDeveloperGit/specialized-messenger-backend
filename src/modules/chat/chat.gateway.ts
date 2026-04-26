@@ -99,6 +99,7 @@ export class ChatGateway {
 
     (client as RoomedSocket).data.currentConversation = {
       id: conversation.id,
+      publicId: conversation.publicId,
       participants: conversation.participants,
     };
 
@@ -120,10 +121,10 @@ export class ChatGateway {
     @MessageBody() { content }: FromClientSendMessageEventBody,
   ) {
     const userId = client.data.user.id;
-    const conversationId = client.data.currentConversation.id;
+    const conversation = client.data.currentConversation;
 
     const message = await this.chatService.createMessage({
-      conversationId,
+      conversationId: conversation.id,
       authorUserId: userId,
       type: MessageTypeName.TEXT,
       content: {
@@ -132,7 +133,7 @@ export class ChatGateway {
     });
 
     this.server
-      .to(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`)
+      .to(`${WS_CONVERSATION_ROOM_PREFIX}:${conversation.publicId}`)
       .emit('from-server:message.new', {
         message,
       });

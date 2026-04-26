@@ -15,8 +15,8 @@ export class WSAdapter extends IoAdapter {
     this.options = {
       cors: {
         origin: configService.get('consumerOrigin'),
+        credentials: false,
       },
-      credentials: false,
     };
   }
 
