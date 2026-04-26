@@ -16,6 +16,7 @@ import { PrismaService } from '@/shared/modules/prisma';
 import {
   CHAT_EVENT,
   ERROR_CONVERSATION_NOT_FOUND,
+  ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND,
   ERROR_INVALID_PARTICIPANTS,
   MessageContent,
   MIN_PRELOADED_MESSAGES_COUNT,
@@ -51,6 +52,57 @@ export class ChatService {
 
     const allParticipantUserIds: bigint[] = [BigInt(ownerId), ...participantUserIds.map(BigInt)];
 
+    if (conversationData.type === ConversationTypeName.DIRECT) {
+      const conversation = await this.prismaService.conversation.findFirst({
+        where: {
+          type: {
+            name: ConversationTypeName.DIRECT,
+          },
+          AND: [
+            { participants: { some: { userId: allParticipantUserIds[0] } } },
+            { participants: { some: { userId: allParticipantUserIds[1] } } },
+            { participants: { every: { userId: { in: allParticipantUserIds } } } },
+          ],
+        },
+      });
+
+      if (conversation) {
+        throw new BadRequestException({
+          code: ERROR_INVALID_PARTICIPANTS,
+        });
+      }
+    }
+
+    const [conversationCreatedType, userJoinedType, ownerRole, memberRole] = await Promise.all([
+      this.prismaService.messageType.findUniqueOrThrow({
+        where: { name: MessageTypeName.SYSTEM_CONVERSATION_CREATED },
+        select: { id: true },
+      }),
+      this.prismaService.messageType.findUniqueOrThrow({
+        where: { name: MessageTypeName.SYSTEM_USER_JOINED },
+        select: { id: true },
+      }),
+      this.prismaService.conversationParticipantRole.findUniqueOrThrow({
+        where: { name: ConversationParticipantRoleName.OWNER },
+        select: { id: true },
+      }),
+      this.prismaService.conversationParticipantRole.findUniqueOrThrow({
+        where: { name: ConversationParticipantRoleName.MEMBER },
+        select: { id: true },
+      }),
+    ]);
+
+    const systemUserJoinedMessages =
+      conversationData.type === ConversationTypeName.GROUP
+        ? participantUserPublicIds.map((participantUserPublicId) => ({
+            publicId: uuidv7(),
+            typeId: userJoinedType.id,
+            content: JSON.stringify({
+              userPublicId: participantUserPublicId,
+            } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
+          }))
+        : [];
+
     const rawConversation = await this.prismaService.conversation.create({
       data: {
         ...conversationData,
@@ -62,45 +114,24 @@ export class ChatService {
           },
         },
         participants: {
-          create: allParticipantUserIds.map((participantUserId) => ({
-            user: {
-              connect: {
-                id: participantUserId,
-              },
-            },
-            role: {
-              connect: {
-                name:
-                  participantUserId === BigInt(ownerId)
-                    ? ConversationParticipantRoleName.OWNER
-                    : ConversationParticipantRoleName.MEMBER,
-              },
-            },
-          })),
+          createMany: {
+            data: allParticipantUserIds.map((participantUserId) => ({
+              userId: participantUserId,
+              roleId: participantUserId === BigInt(ownerId) ? ownerRole.id : memberRole.id,
+            })),
+          },
         },
         messages: {
-          create: [
-            {
-              publicId: uuidv7(),
-              type: {
-                connect: {
-                  name: MessageTypeName.SYSTEM_CONVERSATION_CREATED,
-                },
+          createMany: {
+            data: [
+              {
+                publicId: uuidv7(),
+                typeId: conversationCreatedType.id,
+                content: JSON.stringify('' satisfies MessageContent<'SYSTEM_CONVERSATION_CREATED'>),
               },
-              content: JSON.stringify('' satisfies MessageContent<'SYSTEM_CONVERSATION_CREATED'>),
-            },
-            ...participantUserPublicIds.map((participantUserPublicId) => ({
-              publicId: uuidv7(),
-              type: {
-                connect: {
-                  name: MessageTypeName.SYSTEM_USER_JOINED,
-                },
-              },
-              content: JSON.stringify({
-                userPublicId: participantUserPublicId,
-              } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
-            })),
-          ],
+              ...systemUserJoinedMessages,
+            ],
+          },
         },
       },
       include: {
@@ -124,11 +155,22 @@ export class ChatService {
               },
             },
           },
+          orderBy: [
+            {
+              createdAt: 'desc',
+            },
+            {
+              id: 'desc',
+            },
+          ],
         },
       },
     });
 
-    const conversation = new Conversation(rawConversation);
+    const conversation = new Conversation({
+      ...rawConversation,
+      messages: [...rawConversation.messages].reverse(),
+    });
 
     this.eventEmitter.emit(
       CHAT_EVENT.CONVERSATION_CREATED,
@@ -168,9 +210,14 @@ export class ChatService {
               },
             },
           },
-          orderBy: {
-            createdAt: 'desc',
-          },
+          orderBy: [
+            {
+              createdAt: 'desc',
+            },
+            {
+              id: 'desc',
+            },
+          ],
           take: MIN_PRELOADED_MESSAGES_COUNT,
         },
       },
@@ -222,10 +269,14 @@ export class ChatService {
               },
             },
           },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: MIN_PRELOADED_MESSAGES_COUNT,
+          orderBy: [
+            {
+              createdAt: 'desc',
+            },
+            {
+              id: 'desc',
+            },
+          ],
         },
       },
     });
@@ -236,10 +287,31 @@ export class ChatService {
       });
     }
 
-    return new Conversation(conversation);
+    return new Conversation({
+      ...conversation,
+      messages: [...conversation.messages].reverse(),
+    });
   }
 
   async createMessage(data: CreateMessageRequest): Promise<Message> {
+    if (data.authorUserId) {
+      const participant = await this.prismaService.conversationParticipant.findUnique({
+        where: {
+          conversationId_userId: {
+            conversationId: BigInt(data.conversationId),
+            userId: BigInt(data.authorUserId),
+          },
+        },
+        select: { id: true },
+      });
+
+      if (!participant) {
+        throw new BadRequestException({
+          code: ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND,
+        });
+      }
+    }
+
     const { id: typeId } = await this.prismaService.messageType.findUniqueOrThrow({
       where: {
         name: data.type,
