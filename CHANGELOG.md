@@ -1,3 +1,10 @@
+## [1.13.10](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.9...v1.13.10) (2026-04-26)
+
+
+### Bug Fixes
+
+* **chat:** add types for client ([1aec43d](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/1aec43dfae0061c18fc29199646bcd9aad607e14))
+
 ## [1.13.9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.8...v1.13.9) (2026-04-26)
 
 
