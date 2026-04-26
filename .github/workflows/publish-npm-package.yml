@@ -101,10 +101,8 @@ jobs:
             response: OperationResponse<OpKey>;
           };
           EOF
-      - name: Copy constants to npm package
-        run: |
-          mkdir -p npm-package/constants
-          cp src/modules/{chat/chat,auth/auth,invitation/invitation}.constants.ts npm-package/constants/
+      - name: Bundle constants into npm package
+        run: npx ts-node -r tsconfig-paths/register scripts/bundle-constants.ts
       - name: Create package.json for npm package
         run: |
           VERSION="${{ github.event.release.tag_name }}"
