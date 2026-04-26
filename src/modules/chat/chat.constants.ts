@@ -53,3 +53,5 @@ export interface WSServerToClientEvents {
   'from-server:conversations.update': (data: void) => void;
   'from-server:error': (data: void) => void;
 }
+
+export type WSServerToClientEventsKeys = keyof WSServerToClientEvents;
