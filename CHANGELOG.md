@@ -1,3 +1,11 @@
+## [1.13.9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.8...v1.13.9) (2026-04-26)
+
+
+### Bug Fixes
+
+* **chat:** add more security and order of messages ([feafc33](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/feafc3355ea242db3155cddf25f2d156fa268f6f))
+* **ci/cd:** add deps in package ([487dfe9](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/487dfe98e12e08f642361fdf3377e289f66d8172))
+
 ## [1.13.8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.7...v1.13.8) (2026-04-24)
 
 
