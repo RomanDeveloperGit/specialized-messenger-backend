@@ -4,7 +4,7 @@ export const USER_MOCKS: CreateUserRequest[] = [
   {
     firstName: 'Admin',
     lastName: 'Admin',
-    login: 'admin',
+    login: 'adminn',
     password: 'adminn',
   },
   {

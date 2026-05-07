@@ -1,5 +1,6 @@
 import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
+  Ack,
   ConnectedSocket,
   MessageBody,
   SubscribeMessage,
@@ -37,7 +38,15 @@ export class ChatGateway {
     private readonly chatService: ChatService,
   ) {}
 
-  async handleConnection(client: Socket) {
+  afterInit(server: WSTypedServer) {
+    server.use(async (socket, next) => {
+      await this.authBeforeConnectionEstablished(socket);
+
+      next();
+    });
+  }
+
+  async authBeforeConnectionEstablished(client: Socket) {
     const authHeader = client.handshake.headers.authorization;
 
     if (!authHeader) {
@@ -46,14 +55,12 @@ export class ChatGateway {
     }
 
     const credentials = parseAuthorizationHeader(authHeader);
-
     if (!credentials) {
       client.disconnect();
       return;
     }
 
     const user = await this.userService.getByCredentials(credentials);
-
     if (!user) {
       client.disconnect();
       return;
@@ -78,6 +85,7 @@ export class ChatGateway {
   async handleJoinConversation(
     @ConnectedSocket() client: AuthorizedSocket,
     @MessageBody() { conversationId }: FromClientJoinConversationEventBody,
+    @Ack() ack?: () => void,
   ) {
     const userId = client.data.user.id;
 
@@ -104,14 +112,18 @@ export class ChatGateway {
     };
 
     client.join(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`);
+
+    ack?.();
   }
 
   @UseGuards(RoomedSocketGuard)
   @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.leave')
-  handleLeaveConversation(@ConnectedSocket() client: RoomedSocket) {
+  handleLeaveConversation(@ConnectedSocket() client: RoomedSocket, @Ack() ack?: () => void) {
     client.leave(`${WS_CONVERSATION_ROOM_PREFIX}:${client.data.currentConversation.id}`);
 
     delete (client as any).data.currentConversation;
+
+    ack?.();
   }
 
   @UseGuards(RoomedSocketGuard)
@@ -119,6 +131,7 @@ export class ChatGateway {
   async handleSendMessage(
     @ConnectedSocket() client: RoomedSocket,
     @MessageBody() { content }: FromClientSendMessageEventBody,
+    @Ack() ack?: () => void,
   ) {
     const userId = client.data.user.id;
     const conversation = client.data.currentConversation;
@@ -139,5 +152,7 @@ export class ChatGateway {
       });
 
     this.emitConversationsUpdate(client.data.currentConversation.participants);
+
+    ack?.();
   }
 }
