@@ -1,3 +1,10 @@
+## [1.13.12](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.11...v1.13.12) (2026-05-07)
+
+
+### Bug Fixes
+
+* **ws:** fix socket auth ([0530b2f](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/0530b2f6a21c4c3338dbfa9bbfa0c218d1ded680))
+
 ## [1.13.11](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.10...v1.13.11) (2026-04-26)
 
 
