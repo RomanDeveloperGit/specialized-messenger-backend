@@ -1,3 +1,15 @@
+# [1.14.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.12...v1.14.0) (2026-06-09)
+
+
+### Bug Fixes
+
+* **chat:** fix preload messages count ([690b001](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/690b0015e9d83da6a0e153a05d1bc036c2d29a39))
+
+
+### Features
+
+* **user:** add online/offline status ([0846e02](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/0846e022c53b19e912e871da7d20d8dcec5addd0))
+
 ## [1.13.12](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.11...v1.13.12) (2026-05-07)
 
 
