@@ -23,15 +23,15 @@ jobs:
           cache: yarn
           registry-url: 'https://registry.npmjs.org'
       - name: Prepare environment file
-        run: cp .env.example .env.production
+        run: cp .env.example .env.ci
       - name: Install dependencies and generate Prisma client
         run: |
           yarn
-          yarn setup:prod
+          yarn setup:ci
       - name: Build project
         run: yarn build
       - name: Start server in background
-        run: yarn start:prod &
+        run: yarn start:ci &
       - name: Wait for server to be ready
         run: |
           for i in $(seq 1 30); do

@@ -12,6 +12,7 @@
     "migrate:create": "prisma migrate dev --create-only && yarn setup:dev",
     "migrate:deploy": "prisma migrate deploy",
     "setup:dev": "cross-env NODE_ENV=development prisma generate",
+    "setup:ci": "cross-env NODE_ENV=ci prisma generate",
     "setup:prod": "cross-env NODE_ENV=production prisma generate",
     "seed:execute": "ts-node -r tsconfig-paths/register src/seed",
     "ts:check": "tsc --noEmit",
@@ -21,6 +22,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "build": "cross-env NODE_ENV=production nest build",
+    "start:ci": "cross-env NODE_ENV=ci node dist/src/main",
     "start:prod": "cross-env NODE_ENV=production node dist/src/main"
   },
   "dependencies": {
