@@ -34,15 +34,17 @@ model UserRole {
 }
 
 model User {
-  id        BigInt   @id @default(autoincrement()) @db.BigInt
-  publicId  String   @unique @db.Uuid
-  firstName String   @db.VarChar(100)
-  lastName  String   @db.VarChar(100)
-  login     String   @unique @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  roleId    BigInt   @db.BigInt
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
+  id         BigInt    @id @default(autoincrement()) @db.BigInt
+  publicId   String    @unique @db.Uuid
+  firstName  String    @db.VarChar(100)
+  lastName   String    @db.VarChar(100)
+  login      String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  roleId     BigInt    @db.BigInt
+  isOnline   Boolean   @default(false)
+  lastSeenAt DateTime? @db.Timestamptz
+  createdAt  DateTime  @default(now()) @db.Timestamptz
+  updatedAt  DateTime  @updatedAt @db.Timestamptz
 
   role            UserRole                  @relation(fields: [roleId], references: [id])
   sentInvitations Invitation[]

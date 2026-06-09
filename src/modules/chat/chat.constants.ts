@@ -5,6 +5,8 @@ import {
   FromClientJoinConversationEventBody,
   FromClientSendMessageEventBody,
   FromServerNewMessageEventBody,
+  FromServerUserOfflineEventBody,
+  FromServerUserOnlineEventBody,
 } from './dto/ws.dto';
 
 // Количество сообщений в подгрузке всех чатов (незачем тянуть все сообщения сразу. Это сделать нужно при открытии чата)
@@ -51,6 +53,8 @@ export type WSClientToServerEventsKeys = keyof WSClientToServerEvents;
 export interface WSServerToClientEvents {
   'from-server:message.new': (data: FromServerNewMessageEventBody) => void;
   'from-server:conversations.update': (data: void) => void;
+  'from-server:user.online': (data: FromServerUserOnlineEventBody) => void;
+  'from-server:user.offline': (data: FromServerUserOfflineEventBody) => void;
   'from-server:error': (data: void) => void;
 }
 

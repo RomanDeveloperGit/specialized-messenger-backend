@@ -36,7 +36,7 @@ export class ChatService {
   ) {}
 
   async createConversation(
-    ownerId: PublicId,
+    ownerId: Id,
     {
       participantUserIds: participantUserPublicIds,
       ...conversationData
@@ -350,5 +350,37 @@ export class ChatService {
     ]);
 
     return new Message(message);
+  }
+
+  async getUserIdsBySharedConversations(userId: Id): Promise<Id[]> {
+    const participants = await this.prismaService.conversationParticipant.findMany({
+      where: {
+        userId: BigInt(userId),
+      },
+      select: {
+        conversationId: true,
+      },
+    });
+
+    const conversationIds = participants.map((participant) => participant.conversationId);
+
+    if (!conversationIds.length) return [];
+
+    const relatedParticipants = await this.prismaService.conversationParticipant.findMany({
+      where: {
+        conversationId: {
+          in: conversationIds,
+        },
+        userId: {
+          not: BigInt(userId),
+        },
+      },
+      select: {
+        userId: true,
+      },
+      distinct: ['userId'],
+    });
+
+    return relatedParticipants.map((participant) => participant.userId.toString());
   }
 }

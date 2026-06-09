@@ -22,8 +22,7 @@ import {
   WSClientToServerEventsKeys,
 } from './chat.constants';
 import { ChatService } from './chat.service';
-import { AuthorizedSocket, RoomedSocket, WSTypedServer } from './chat.types';
-import { ConversationParticipant } from './dto/conversation-participant.dto';
+import { AuthorizedSocket, ParticipantUserId, RoomedSocket, WSTypedServer } from './chat.types';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
 import { AuthorizedSocketGuard, RoomedSocketGuard } from './guards/ws.guard';
 
@@ -66,16 +65,42 @@ export class ChatGateway {
       return;
     }
 
-    (client as AuthorizedSocket).data.user = user;
+    const userWithUpdatedOnlineStatus = await this.userService.markAsOnline(user.id);
+    const relatedParticipantUserIds = await this.chatService.getUserIdsBySharedConversations(
+      user.id,
+    );
 
-    // Присоединяем сокет в персональную комнату пользователя
-    client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${user.id}`);
+    (client as AuthorizedSocket).data = {
+      user: userWithUpdatedOnlineStatus,
+      relatedParticipantUserIds,
+    };
   }
 
-  emitConversationsUpdate(participants: ConversationParticipant[]) {
-    participants.forEach((participant) => {
+  async handleConnection(client: AuthorizedSocket) {
+    // Присоединяем сокет в персональную комнату пользователя
+    client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${client.data.user.id}`);
+
+    client.data.relatedParticipantUserIds.forEach((userId) => {
       this.server
-        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${participant.userId}`)
+        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
+        .emit('from-server:user.online', { user: client.data.user });
+    });
+  }
+
+  async handleDisconnect(client: AuthorizedSocket) {
+    const user = await this.userService.markAsOffline(client.data.user.id);
+
+    client.data.relatedParticipantUserIds.forEach((userId) => {
+      this.server
+        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
+        .emit('from-server:user.offline', { user });
+    });
+  }
+
+  emitConversationsUpdate(participantUserIds: ParticipantUserId[]) {
+    participantUserIds.forEach((userId) => {
+      this.server
+        .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
         .emit('from-server:conversations.update');
     });
   }
@@ -108,7 +133,7 @@ export class ChatGateway {
     (client as RoomedSocket).data.currentConversation = {
       id: conversation.id,
       publicId: conversation.publicId,
-      participants: conversation.participants,
+      participantUserIds: conversation.participants.map(({ userId }) => userId),
     };
 
     client.join(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`);
@@ -151,7 +176,7 @@ export class ChatGateway {
         message,
       });
 
-    this.emitConversationsUpdate(client.data.currentConversation.participants);
+    this.emitConversationsUpdate(client.data.currentConversation.participantUserIds);
 
     ack?.();
   }

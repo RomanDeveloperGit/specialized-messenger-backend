@@ -11,6 +11,8 @@ export class ChatListener {
 
   @OnEvent(CHAT_EVENT.CONVERSATION_CREATED)
   handleConversationCreated(event: ConversationCreatedEvent) {
-    this.chatGateway.emitConversationsUpdate(event.conversation.participants);
+    this.chatGateway.emitConversationsUpdate(
+      event.conversation.participants.map(({ userId }) => userId),
+    );
   }
 }

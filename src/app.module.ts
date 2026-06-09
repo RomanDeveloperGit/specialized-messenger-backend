@@ -9,6 +9,8 @@ import { UserModule } from '@/modules/user/user.module';
 import { ConfigModule } from '@/shared/modules/config';
 import { PrismaModule } from '@/shared/modules/prisma';
 
+import { StartupService } from '@/startup.service';
+
 @Module({
   imports: [ConfigModule, PrismaModule, UserModule, AuthModule, InvitationModule, ChatModule],
   providers: [
@@ -22,6 +24,7 @@ import { PrismaModule } from '@/shared/modules/prisma';
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
+    StartupService,
   ],
 })
 export class AppModule {}

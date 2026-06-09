@@ -39,6 +39,12 @@ export class User implements Omit<_User, 'id' | 'password' | 'roleId'> {
   role: UserRole;
 
   @Expose()
+  isOnline: boolean;
+
+  @Expose()
+  lastSeenAt: Date;
+
+  @Expose()
   createdAt: Date;
 
   @Expose()

@@ -81,4 +81,52 @@ export class UserService {
 
     return users.map(({ id }) => id.toString());
   }
+
+  async markAsOnline(userId: Id): Promise<User> {
+    const user = await this.prismaService.user.update({
+      where: {
+        id: BigInt(userId),
+      },
+      data: {
+        isOnline: true,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    return new User(user);
+  }
+
+  async markAsOffline(userId: Id): Promise<User> {
+    const user = await this.prismaService.user.update({
+      where: {
+        id: BigInt(userId),
+      },
+      data: {
+        isOnline: false,
+        lastSeenAt: new Date(),
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    return new User(user);
+  }
+
+  // этот метод в основном для того случая, когда сервак упал, а пользователи не закрыли соединение => висят "онлайн"
+  // будем перезаписывать им онлайн при подъеме, но т.к. мы не знаем время падения, будем записывать время подъема сервера
+  // для UX разница не велика
+  async resetAllOnlineUsers(newLastSeenAt: Date) {
+    await this.prismaService.user.updateMany({
+      where: {
+        isOnline: true,
+      },
+      data: {
+        lastSeenAt: newLastSeenAt,
+        isOnline: false,
+      },
+    });
+  }
 }
