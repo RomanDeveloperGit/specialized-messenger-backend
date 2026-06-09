@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.0...v1.14.1) (2026-06-09)
+
+
+### Bug Fixes
+
+* **app:** fix adding provider only for prod mode ([ee8d03f](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/ee8d03f5c3b85e5aa7e56cb87dfdd478108ff9a4))
+
 # [1.14.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.13.12...v1.14.0) (2026-06-09)
 
 
