@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.1...v1.14.2) (2026-06-09)
+
+
+### Bug Fixes
+
+* add ci mode ([32647e8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/32647e8bf095b1cd02ce4d56a4467eee5ae5acae))
+
 ## [1.14.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.0...v1.14.1) (2026-06-09)
 
 
