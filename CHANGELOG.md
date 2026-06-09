@@ -1,3 +1,10 @@
+## [1.14.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.2...v1.14.3) (2026-06-09)
+
+
+### Bug Fixes
+
+* **prisma:** fix dotenv config ([646d54c](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/646d54cc139d78ba0e7f234b99a2c87726e4479a))
+
 ## [1.14.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.1...v1.14.2) (2026-06-09)
 
 
