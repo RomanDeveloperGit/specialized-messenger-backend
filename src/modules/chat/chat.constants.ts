@@ -8,7 +8,7 @@ import {
 } from './dto/ws.dto';
 
 // Количество сообщений в подгрузке всех чатов (незачем тянуть все сообщения сразу. Это сделать нужно при открытии чата)
-export const MIN_PRELOADED_MESSAGES_COUNT = 10;
+export const PRELOAD_MESSAGES_COUNT = 1;
 
 export const ERROR_INVALID_PARTICIPANTS = 'ERROR_INVALID_PARTICIPANTS';
 export const ERROR_CONVERSATION_NOT_FOUND = 'ERROR_CONVERSATION_NOT_FOUND';

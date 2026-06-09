@@ -19,7 +19,7 @@ import {
   ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND,
   ERROR_INVALID_PARTICIPANTS,
   MessageContent,
-  MIN_PRELOADED_MESSAGES_COUNT,
+  PRELOAD_MESSAGES_COUNT,
 } from './chat.constants';
 import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
@@ -218,7 +218,7 @@ export class ChatService {
               id: 'desc',
             },
           ],
-          take: MIN_PRELOADED_MESSAGES_COUNT,
+          take: PRELOAD_MESSAGES_COUNT,
         },
       },
       orderBy: {
