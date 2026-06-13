@@ -24,7 +24,7 @@ import { StartupService } from '@/startup.service';
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
     },
-    ...(process.env.NODE_ENV === 'production' ? [StartupService] : []),
+    ...(process.env.NODE_ENV === 'ci' ? [] : [StartupService]),
   ],
 })
 export class AppModule {}
