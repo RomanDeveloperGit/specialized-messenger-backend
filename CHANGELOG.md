@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.3...v1.15.0) (2026-06-14)
+
+
+### Features
+
+* add adding and removing participants ([4d5e147](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/4d5e147df09d6be54392777b50e4a55d5fa180b7))
+
 ## [1.14.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.2...v1.14.3) (2026-06-09)
 
 
