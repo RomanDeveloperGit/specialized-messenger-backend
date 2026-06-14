@@ -8,7 +8,7 @@ import { PublicId } from '@/shared/libs/ids';
 import { Message } from './message.dto';
 
 export class FromClientJoinConversationEventBody {
-  @IsUUID()
+  @IsUUID('7')
   conversationId: PublicId;
 }
 
@@ -21,6 +21,10 @@ export class FromClientSendMessageEventBody {
 
 export interface FromServerNewMessageEventBody {
   message: Message;
+}
+
+export interface FromServerConversationsDeleteEventBody {
+  conversationId: PublicId;
 }
 
 export interface FromServerUserOnlineEventBody {

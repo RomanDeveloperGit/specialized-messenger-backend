@@ -4,6 +4,7 @@ import { MessageTypeName } from '@/shared/modules/generated/prisma/enums';
 import {
   FromClientJoinConversationEventBody,
   FromClientSendMessageEventBody,
+  FromServerConversationsDeleteEventBody,
   FromServerNewMessageEventBody,
   FromServerUserOfflineEventBody,
   FromServerUserOnlineEventBody,
@@ -13,8 +14,14 @@ import {
 export const PRELOAD_MESSAGES_COUNT = 1;
 
 export const ERROR_INVALID_PARTICIPANTS = 'ERROR_INVALID_PARTICIPANTS';
+export const ERROR_INVALID_CONVERSATION_TYPE = 'ERROR_INVALID_CONVERSATION_TYPE';
 export const ERROR_CONVERSATION_NOT_FOUND = 'ERROR_CONVERSATION_NOT_FOUND';
+export const ERROR_CONVERSATION_PARTICIPANT_NOT_OWNER = 'ERROR_CONVERSATION_PARTICIPANT_NOT_OWNER';
 export const ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND = 'ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND';
+export const ERROR_CONVERSATION_PARTICIPANT_ALREADY_EXISTS =
+  'ERROR_CONVERSATION_PARTICIPANT_ALREADY_EXISTS';
+export const ERROR_CONVERSATION_PARTICIPANT_CANNOT_REMOVE_SELF =
+  'ERROR_CONVERSATION_PARTICIPANT_CANNOT_REMOVE_SELF';
 
 export const WS_PERSONAL_USER_ROOM_PREFIX = 'user';
 export const WS_CONVERSATION_ROOM_PREFIX = 'conversation';
@@ -22,6 +29,11 @@ export const WS_CONVERSATION_ROOM_PREFIX = 'conversation';
 export type MessageContentByTypeNameMap = {
   [MessageTypeName.SYSTEM_CONVERSATION_CREATED]: '';
   [MessageTypeName.SYSTEM_USER_JOINED]: {
+    // Чтобы не было проблем с сериализацией, будем хранить не Id (BigInt), а PublicId (uuid)
+    // Он все равно нужен только для UI
+    userPublicId: PublicId;
+  };
+  [MessageTypeName.SYSTEM_USER_LEAVED]: {
     // Чтобы не было проблем с сериализацией, будем хранить не Id (BigInt), а PublicId (uuid)
     // Он все равно нужен только для UI
     userPublicId: PublicId;
@@ -40,6 +52,8 @@ export type MessageTypeNameWithContentObject = {
 
 export const CHAT_EVENT = {
   CONVERSATION_CREATED: 'chat.conversation.created',
+  CONVERSATION_PARTICIPANT_ADDED: 'chat.conversation.participant.added',
+  CONVERSATION_PARTICIPANT_REMOVED: 'chat.conversation.participant.removed',
 } as const;
 
 export interface WSClientToServerEvents {
@@ -53,6 +67,8 @@ export type WSClientToServerEventsKeys = keyof WSClientToServerEvents;
 export interface WSServerToClientEvents {
   'from-server:message.new': (data: FromServerNewMessageEventBody) => void;
   'from-server:conversations.update': (data: void) => void;
+  'from-server:conversations:delete': (data: FromServerConversationsDeleteEventBody) => void;
+  'from-server:activeConversation:update': (data: void) => void;
   'from-server:user.online': (data: FromServerUserOnlineEventBody) => void;
   'from-server:user.offline': (data: FromServerUserOfflineEventBody) => void;
   'from-server:error': (data: void) => void;

@@ -120,11 +120,13 @@ model ConversationParticipantRole {
 }
 
 model ConversationParticipant {
-  id             BigInt   @id @default(autoincrement()) @db.BigInt
-  conversationId BigInt   @db.BigInt
-  userId         BigInt   @db.BigInt
-  roleId         BigInt   @db.BigInt
-  joinedAt       DateTime @default(now()) @db.Timestamptz
+  id             BigInt    @id @default(autoincrement()) @db.BigInt
+  publicId       String    @unique @db.Uuid
+  conversationId BigInt    @db.BigInt
+  userId         BigInt    @db.BigInt
+  roleId         BigInt    @db.BigInt
+  joinedAt       DateTime  @default(now()) @db.Timestamptz
+  leavedAt       DateTime? @db.Timestamptz
 
   conversation Conversation                @relation(fields: [conversationId], references: [id])
   user         User                        @relation(fields: [userId], references: [id])
@@ -137,6 +139,7 @@ model ConversationParticipant {
 enum MessageTypeName {
   SYSTEM_CONVERSATION_CREATED
   SYSTEM_USER_JOINED
+  SYSTEM_USER_LEAVED
   TEXT
 }
 

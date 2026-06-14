@@ -12,7 +12,6 @@ export type ParticipantUserId = Conversation['participants'][number]['userId'];
 export interface AuthorizedSocket extends Socket<WSClientToServerEvents, WSServerToClientEvents> {
   data: {
     user: User;
-    relatedParticipantUserIds: ParticipantUserId[];
   };
 }
 

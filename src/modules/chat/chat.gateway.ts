@@ -23,6 +23,11 @@ import {
 } from './chat.constants';
 import { ChatService } from './chat.service';
 import { AuthorizedSocket, ParticipantUserId, RoomedSocket, WSTypedServer } from './chat.types';
+import { Conversation } from './dto/conversation.dto';
+import {
+  ConversationParticipantAddedEvent,
+  ConversationParticipantRemovedEvent,
+} from './dto/events.dto';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
 import { AuthorizedSocketGuard, RoomedSocketGuard } from './guards/ws.guard';
 
@@ -66,21 +71,22 @@ export class ChatGateway {
     }
 
     const userWithUpdatedOnlineStatus = await this.userService.markAsOnline(user.id);
-    const relatedParticipantUserIds = await this.chatService.getUserIdsBySharedConversations(
-      user.id,
-    );
 
     (client as AuthorizedSocket).data = {
       user: userWithUpdatedOnlineStatus,
-      relatedParticipantUserIds,
     };
   }
 
   async handleConnection(client: AuthorizedSocket) {
-    // Присоединяем сокет в персональную комнату пользователя
-    client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${client.data.user.id}`);
+    const userId = client.data.user.id;
 
-    client.data.relatedParticipantUserIds.forEach((userId) => {
+    // Присоединяем сокет в персональную комнату пользователя
+    client.join(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`);
+
+    const relatedParticipantUserIds =
+      await this.chatService.getRelatedParticipantUserIdsByUserId(userId);
+
+    relatedParticipantUserIds.forEach((userId) => {
       this.server
         .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
         .emit('from-server:user.online', { user: client.data.user });
@@ -88,9 +94,13 @@ export class ChatGateway {
   }
 
   async handleDisconnect(client: AuthorizedSocket) {
-    const user = await this.userService.markAsOffline(client.data.user.id);
+    const userId = client.data.user.id;
+    const user = await this.userService.markAsOffline(userId);
 
-    client.data.relatedParticipantUserIds.forEach((userId) => {
+    const relatedParticipantUserIds =
+      await this.chatService.getRelatedParticipantUserIdsByUserId(userId);
+
+    relatedParticipantUserIds.forEach((userId) => {
       this.server
         .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
         .emit('from-server:user.offline', { user });
@@ -103,6 +113,12 @@ export class ChatGateway {
         .to(`${WS_PERSONAL_USER_ROOM_PREFIX}:${userId}`)
         .emit('from-server:conversations.update');
     });
+  }
+
+  emitActiveConversationUpdate(conversationId: string) {
+    this.server
+      .to(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`)
+      .emit('from-server:activeConversation:update');
   }
 
   @UseGuards(AuthorizedSocketGuard)
@@ -141,12 +157,16 @@ export class ChatGateway {
     ack?.();
   }
 
-  @UseGuards(RoomedSocketGuard)
-  @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.leave')
-  handleLeaveConversation(@ConnectedSocket() client: RoomedSocket, @Ack() ack?: () => void) {
+  private leaveConversation(client: RoomedSocket) {
     client.leave(`${WS_CONVERSATION_ROOM_PREFIX}:${client.data.currentConversation.id}`);
 
     delete (client as any).data.currentConversation;
+  }
+
+  @UseGuards(RoomedSocketGuard)
+  @SubscribeMessage<WSClientToServerEventsKeys>('from-client:conversation.leave')
+  handleLeaveConversation(@ConnectedSocket() client: RoomedSocket, @Ack() ack?: () => void) {
+    this.leaveConversation(client);
 
     ack?.();
   }
@@ -179,5 +199,49 @@ export class ChatGateway {
     this.emitConversationsUpdate(client.data.currentConversation.participantUserIds);
 
     ack?.();
+  }
+
+  private async handleParticipantsUpdated(conversation: Conversation) {
+    const participantUserIds = conversation.participants.map(({ userId }) => userId);
+
+    const socketIds =
+      this.server.sockets.adapter.rooms.get(
+        `${WS_CONVERSATION_ROOM_PREFIX}:${conversation.publicId}`,
+      ) ?? new Set<string>();
+
+    for (const socketId of socketIds) {
+      const participantClient = this.server.sockets.sockets.get(socketId) as
+        | RoomedSocket
+        | undefined;
+      if (!participantClient) continue;
+
+      participantClient.data.currentConversation.participantUserIds = participantUserIds;
+    }
+
+    this.emitConversationsUpdate(participantUserIds);
+    this.emitActiveConversationUpdate(conversation.publicId);
+  }
+
+  async handleParticipantAdded({ conversation }: ConversationParticipantAddedEvent) {
+    this.handleParticipantsUpdated(conversation);
+  }
+
+  async handleParticipantRemoved({
+    conversation,
+    removedParticipantUserId,
+  }: ConversationParticipantRemovedEvent) {
+    const participantClient = this.server.sockets.sockets.get(
+      `${WS_PERSONAL_USER_ROOM_PREFIX}:${removedParticipantUserId}`,
+    ) as RoomedSocket;
+
+    this.leaveConversation(participantClient);
+
+    participantClient.emit('from-server:conversations:delete', {
+      conversationId: conversation.publicId,
+    });
+
+    this.emitConversationsUpdate([removedParticipantUserId]);
+
+    this.handleParticipantsUpdated(conversation);
   }
 }

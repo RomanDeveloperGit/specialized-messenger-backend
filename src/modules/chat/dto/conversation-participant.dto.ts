@@ -4,7 +4,7 @@ import { Expose } from 'class-transformer';
 
 import { User } from '@/modules/user/dto/user.dto';
 
-import { Id } from '@/shared/libs/ids';
+import { Id, PublicId } from '@/shared/libs/ids';
 import { ConversationParticipant as _ConversationParticipant } from '@/shared/modules/generated/prisma/client';
 import {
   ConversationParticipantGetPayload,
@@ -34,6 +34,9 @@ export class ConversationParticipant implements Omit<
   id: Id;
 
   @Expose()
+  publicId: PublicId;
+
+  @Expose()
   conversationId: Id;
 
   @Expose()
@@ -53,6 +56,9 @@ export class ConversationParticipant implements Omit<
 
   @Expose()
   joinedAt: Date;
+
+  @Expose()
+  leavedAt: Date | null;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor({ roleId, ...conversationParticipant }: PopulatedConversationParticipant) {

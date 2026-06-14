@@ -16,15 +16,24 @@ import { PrismaService } from '@/shared/modules/prisma';
 import {
   CHAT_EVENT,
   ERROR_CONVERSATION_NOT_FOUND,
+  ERROR_CONVERSATION_PARTICIPANT_ALREADY_EXISTS,
+  ERROR_CONVERSATION_PARTICIPANT_CANNOT_REMOVE_SELF,
   ERROR_CONVERSATION_PARTICIPANT_NOT_FOUND,
+  ERROR_CONVERSATION_PARTICIPANT_NOT_OWNER,
+  ERROR_INVALID_CONVERSATION_TYPE,
   ERROR_INVALID_PARTICIPANTS,
   MessageContent,
   PRELOAD_MESSAGES_COUNT,
 } from './chat.constants';
+import { AddConversationParticipantRequest } from './dto/add-conversation-participant.dto';
 import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
 import { CreateMessageRequest } from './dto/create-message.dto';
-import { ConversationCreatedEvent } from './dto/events.dto';
+import {
+  ConversationCreatedEvent,
+  ConversationParticipantAddedEvent,
+  ConversationParticipantRemovedEvent,
+} from './dto/events.dto';
 import { Message } from './dto/message.dto';
 
 @Injectable()
@@ -59,9 +68,9 @@ export class ChatService {
             name: ConversationTypeName.DIRECT,
           },
           AND: [
-            { participants: { some: { userId: allParticipantUserIds[0] } } },
-            { participants: { some: { userId: allParticipantUserIds[1] } } },
-            { participants: { every: { userId: { in: allParticipantUserIds } } } },
+            { participants: { some: { userId: allParticipantUserIds[0], leavedAt: null } } },
+            { participants: { some: { userId: allParticipantUserIds[1], leavedAt: null } } },
+            { participants: { every: { userId: { in: allParticipantUserIds }, leavedAt: null } } },
           ],
         },
       });
@@ -116,6 +125,7 @@ export class ChatService {
         participants: {
           createMany: {
             data: allParticipantUserIds.map((participantUserId) => ({
+              publicId: uuidv7(),
               userId: participantUserId,
               roleId: participantUserId === BigInt(ownerId) ? ownerRole.id : memberRole.id,
             })),
@@ -136,6 +146,9 @@ export class ChatService {
       },
       include: {
         participants: {
+          where: {
+            leavedAt: null,
+          },
           include: {
             user: {
               include: {
@@ -180,17 +193,21 @@ export class ChatService {
     return conversation;
   }
 
-  async getConversations(userId: Id): Promise<Conversation[]> {
+  async getConversations(initiatorUserId: Id): Promise<Conversation[]> {
     const conversations = await this.prismaService.conversation.findMany({
       where: {
         participants: {
           some: {
-            userId: BigInt(userId),
+            userId: BigInt(initiatorUserId),
+            leavedAt: null,
           },
         },
       },
       include: {
         participants: {
+          where: {
+            leavedAt: null,
+          },
           include: {
             user: {
               include: {
@@ -237,19 +254,23 @@ export class ChatService {
 
   async getConversationByPublicId(
     conversationPublicId: PublicId,
-    userId: Id,
+    initiatorUserId: Id,
   ): Promise<Conversation> {
     const conversation = await this.prismaService.conversation.findUnique({
       where: {
         publicId: conversationPublicId,
         participants: {
           some: {
-            userId: BigInt(userId),
+            userId: BigInt(initiatorUserId),
+            leavedAt: null,
           },
         },
       },
       include: {
         participants: {
+          where: {
+            leavedAt: null,
+          },
           include: {
             user: {
               include: {
@@ -301,6 +322,7 @@ export class ChatService {
             conversationId: BigInt(data.conversationId),
             userId: BigInt(data.authorUserId),
           },
+          leavedAt: null,
         },
         select: { id: true },
       });
@@ -352,10 +374,11 @@ export class ChatService {
     return new Message(message);
   }
 
-  async getUserIdsBySharedConversations(userId: Id): Promise<Id[]> {
+  async getRelatedParticipantUserIdsByUserId(initiatorUserId: Id): Promise<Id[]> {
     const participants = await this.prismaService.conversationParticipant.findMany({
       where: {
-        userId: BigInt(userId),
+        userId: BigInt(initiatorUserId),
+        leavedAt: null,
       },
       select: {
         conversationId: true,
@@ -372,8 +395,9 @@ export class ChatService {
           in: conversationIds,
         },
         userId: {
-          not: BigInt(userId),
+          not: BigInt(initiatorUserId),
         },
+        leavedAt: null,
       },
       select: {
         userId: true,
@@ -382,5 +406,219 @@ export class ChatService {
     });
 
     return relatedParticipants.map((participant) => participant.userId.toString());
+  }
+
+  async addConversationParticipant(
+    conversationPublicId: PublicId,
+    data: AddConversationParticipantRequest,
+    initiatorUserId: Id,
+  ): Promise<Conversation> {
+    const conversation = await this.prismaService.conversation.findUnique({
+      where: {
+        publicId: conversationPublicId,
+        participants: {
+          some: {
+            userId: BigInt(initiatorUserId),
+            leavedAt: null,
+          },
+        },
+      },
+      include: {
+        participants: {
+          where: {
+            leavedAt: null,
+          },
+        },
+        type: true,
+      },
+    });
+
+    if (!conversation) {
+      throw new BadRequestException({ code: ERROR_CONVERSATION_NOT_FOUND });
+    }
+
+    if (conversation.type.name !== ConversationTypeName.GROUP) {
+      throw new BadRequestException({ code: ERROR_INVALID_CONVERSATION_TYPE });
+    }
+
+    const [newParticipantUserId] = await this.userService.getIdsByPublicIds([data.userId]);
+
+    if (!newParticipantUserId) {
+      throw new BadRequestException({ code: ERROR_INVALID_PARTICIPANTS });
+    }
+
+    const existingParticipant = conversation.participants.find(
+      (participant) => participant.userId === BigInt(newParticipantUserId),
+    );
+
+    if (existingParticipant) {
+      throw new BadRequestException({ code: ERROR_CONVERSATION_PARTICIPANT_ALREADY_EXISTS });
+    }
+
+    const [memberRole, userJoinedType] = await Promise.all([
+      this.prismaService.conversationParticipantRole.findUniqueOrThrow({
+        where: { name: ConversationParticipantRoleName.MEMBER },
+        select: { id: true },
+      }),
+      this.prismaService.messageType.findUniqueOrThrow({
+        where: { name: MessageTypeName.SYSTEM_USER_JOINED },
+        select: { id: true },
+      }),
+    ]);
+
+    await this.prismaService.$transaction([
+      this.prismaService.conversationParticipant.upsert({
+        where: {
+          conversationId_userId: {
+            conversationId: conversation.id,
+            userId: BigInt(newParticipantUserId),
+          },
+        },
+        create: {
+          publicId: uuidv7(),
+          conversationId: conversation.id,
+          userId: BigInt(newParticipantUserId),
+          roleId: memberRole.id,
+        },
+        update: {
+          roleId: memberRole.id,
+          leavedAt: null,
+          joinedAt: new Date(),
+        },
+      }),
+      this.prismaService.message.create({
+        data: {
+          publicId: uuidv7(),
+          conversationId: conversation.id,
+          typeId: userJoinedType.id,
+          content: JSON.stringify({
+            userPublicId: data.userId,
+          } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
+        },
+      }),
+      this.prismaService.conversation.update({
+        where: { id: conversation.id },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
+
+    const updatedConversation = await this.getConversationByPublicId(
+      conversationPublicId,
+      initiatorUserId,
+    );
+
+    this.eventEmitter.emit(
+      CHAT_EVENT.CONVERSATION_PARTICIPANT_ADDED,
+      new ConversationParticipantAddedEvent(updatedConversation),
+    );
+
+    return updatedConversation;
+  }
+
+  async removeConversationParticipant(
+    conversationPublicId: PublicId,
+    participantPublicId: PublicId,
+    initiatorUserId: Id,
+  ): Promise<Conversation> {
+    const conversation = await this.prismaService.conversation.findUnique({
+      where: {
+        publicId: conversationPublicId,
+        AND: [
+          {
+            participants: {
+              some: {
+                userId: BigInt(initiatorUserId),
+                leavedAt: null,
+              },
+            },
+          },
+          {
+            participants: {
+              some: {
+                publicId: participantPublicId,
+                leavedAt: null,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        participants: {
+          where: {
+            leavedAt: null,
+          },
+          include: {
+            role: true,
+            user: true,
+          },
+        },
+        type: true,
+      },
+    });
+
+    if (!conversation) {
+      throw new BadRequestException({ code: ERROR_CONVERSATION_NOT_FOUND });
+    }
+
+    if (conversation.type.name !== ConversationTypeName.GROUP) {
+      throw new BadRequestException({ code: ERROR_INVALID_CONVERSATION_TYPE });
+    }
+
+    const initiatorParticipant = conversation.participants.find(
+      (participant) => participant.userId === BigInt(initiatorUserId),
+    )!;
+
+    if (initiatorParticipant.role.name !== ConversationParticipantRoleName.OWNER) {
+      throw new BadRequestException({ code: ERROR_CONVERSATION_PARTICIPANT_NOT_OWNER });
+    }
+
+    const targetParticipant = conversation.participants.find(
+      (participant) => participant.publicId === participantPublicId,
+    )!;
+
+    if (targetParticipant.userId === BigInt(initiatorUserId)) {
+      throw new BadRequestException({ code: ERROR_CONVERSATION_PARTICIPANT_CANNOT_REMOVE_SELF });
+    }
+
+    const { id: userLeavedTypeId } = await this.prismaService.messageType.findUniqueOrThrow({
+      where: { name: MessageTypeName.SYSTEM_USER_LEAVED },
+      select: { id: true },
+    });
+
+    const [{ userId: removedParticipantUserId }] = await this.prismaService.$transaction([
+      this.prismaService.conversationParticipant.update({
+        where: { id: targetParticipant.id },
+        data: { leavedAt: new Date() },
+      }),
+      this.prismaService.message.create({
+        data: {
+          publicId: uuidv7(),
+          conversationId: conversation.id,
+          typeId: userLeavedTypeId,
+          content: JSON.stringify({
+            userPublicId: targetParticipant.user.publicId,
+          } satisfies MessageContent<'SYSTEM_USER_LEAVED'>),
+        },
+      }),
+      this.prismaService.conversation.update({
+        where: { id: conversation.id },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
+
+    const updatedConversation = await this.getConversationByPublicId(
+      conversationPublicId,
+      initiatorUserId,
+    );
+
+    this.eventEmitter.emit(
+      CHAT_EVENT.CONVERSATION_PARTICIPANT_REMOVED,
+      new ConversationParticipantRemovedEvent(
+        updatedConversation,
+        removedParticipantUserId.toString(),
+      ),
+    );
+
+    return updatedConversation;
   }
 }
