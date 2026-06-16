@@ -6,9 +6,9 @@ import { AuthorizedRequest } from '@/modules/auth/auth.types';
 
 import { ChatService } from './chat.service';
 import {
-  AddConversationParticipantParams,
-  AddConversationParticipantRequest,
-} from './dto/add-conversation-participant.dto';
+  AddConversationParticipantsParams,
+  AddConversationParticipantsRequest,
+} from './dto/add-conversation-participants.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
 import { GetConversationByPublicIdParams } from './dto/get-conversation-by-public-id.dto';
 import { RemoveConversationParticipantParams } from './dto/remove-conversation-participant.dto';
@@ -49,12 +49,12 @@ export class ChatController {
   @Post('conversations/:id/participants')
   @ApiBasicAuth()
   @UseGuards(AuthGuard)
-  async addConversationParticipant(
+  async addConversationParticipants(
     @Req() req: AuthorizedRequest,
-    @Param() { id: conversationPublicId }: AddConversationParticipantParams,
-    @Body() data: AddConversationParticipantRequest,
+    @Param() { id: conversationPublicId }: AddConversationParticipantsParams,
+    @Body() data: AddConversationParticipantsRequest,
   ) {
-    return await this.chatService.addConversationParticipant(
+    return await this.chatService.addConversationParticipants(
       conversationPublicId,
       data,
       req.user.id,

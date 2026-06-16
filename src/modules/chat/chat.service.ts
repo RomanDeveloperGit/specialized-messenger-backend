@@ -25,7 +25,7 @@ import {
   MessageContent,
   PRELOAD_MESSAGES_COUNT,
 } from './chat.constants';
-import { AddConversationParticipantRequest } from './dto/add-conversation-participant.dto';
+import { AddConversationParticipantsRequest } from './dto/add-conversation-participants.dto';
 import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
 import { CreateMessageRequest } from './dto/create-message.dto';
@@ -408,9 +408,9 @@ export class ChatService {
     return relatedParticipants.map((participant) => participant.userId.toString());
   }
 
-  async addConversationParticipant(
+  async addConversationParticipants(
     conversationPublicId: PublicId,
-    data: AddConversationParticipantRequest,
+    { userIds: userPublicIds }: AddConversationParticipantsRequest,
     initiatorUserId: Id,
   ): Promise<Conversation> {
     const conversation = await this.prismaService.conversation.findUnique({
@@ -441,14 +441,17 @@ export class ChatService {
       throw new BadRequestException({ code: ERROR_INVALID_CONVERSATION_TYPE });
     }
 
-    const [newParticipantUserId] = await this.userService.getIdsByPublicIds([data.userId]);
+    const newParticipantUserIds = await this.userService.getIdsByPublicIds(userPublicIds);
+    const newParticipantUserIdDictionary = Object.fromEntries(
+      newParticipantUserIds.map((id) => [id, true]),
+    );
 
-    if (!newParticipantUserId) {
+    if (newParticipantUserIds.length !== userPublicIds.length) {
       throw new BadRequestException({ code: ERROR_INVALID_PARTICIPANTS });
     }
 
     const existingParticipant = conversation.participants.find(
-      (participant) => participant.userId === BigInt(newParticipantUserId),
+      (participant) => newParticipantUserIdDictionary[participant.userId.toString()],
     );
 
     if (existingParticipant) {
@@ -466,39 +469,63 @@ export class ChatService {
       }),
     ]);
 
+    const now = new Date();
+
+    const existingLeft = await this.prismaService.conversationParticipant.findMany({
+      where: {
+        conversationId: conversation.id,
+        userId: { in: newParticipantUserIds.map(BigInt) },
+        leavedAt: { not: null },
+      },
+      select: { userId: true },
+    });
+    const existingLeftUserIds = new Set(existingLeft.map((p) => p.userId.toString()));
+
+    const toCreate = newParticipantUserIds.filter((id) => !existingLeftUserIds.has(id));
+    const toUpdate = newParticipantUserIds.filter((id) => existingLeftUserIds.has(id));
+
     await this.prismaService.$transaction([
-      this.prismaService.conversationParticipant.upsert({
-        where: {
-          conversationId_userId: {
-            conversationId: conversation.id,
-            userId: BigInt(newParticipantUserId),
-          },
-        },
-        create: {
-          publicId: uuidv7(),
-          conversationId: conversation.id,
-          userId: BigInt(newParticipantUserId),
-          roleId: memberRole.id,
-        },
-        update: {
-          roleId: memberRole.id,
-          leavedAt: null,
-          joinedAt: new Date(),
-        },
-      }),
-      this.prismaService.message.create({
-        data: {
+      ...(toCreate.length
+        ? [
+            this.prismaService.conversationParticipant.createMany({
+              data: toCreate.map((userId) => ({
+                publicId: uuidv7(),
+                conversationId: conversation.id,
+                userId: BigInt(userId),
+                roleId: memberRole.id,
+              })),
+            }),
+          ]
+        : []),
+      ...(toUpdate.length
+        ? [
+            this.prismaService.conversationParticipant.updateMany({
+              where: {
+                conversationId: conversation.id,
+                userId: { in: toUpdate.map(BigInt) },
+              },
+              data: {
+                roleId: memberRole.id,
+                leavedAt: null,
+                joinedAt: now,
+              },
+            }),
+          ]
+        : []),
+      this.prismaService.message.createMany({
+        data: userPublicIds.map((userPublicId) => ({
           publicId: uuidv7(),
           conversationId: conversation.id,
           typeId: userJoinedType.id,
           content: JSON.stringify({
-            userPublicId: data.userId,
+            userPublicId,
           } satisfies MessageContent<'SYSTEM_USER_JOINED'>),
-        },
+        })),
       }),
+
       this.prismaService.conversation.update({
         where: { id: conversation.id },
-        data: { updatedAt: new Date() },
+        data: { updatedAt: now },
       }),
     ]);
 
