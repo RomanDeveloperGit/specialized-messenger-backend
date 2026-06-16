@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.0...v1.15.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **chat/participants:** add adding many participants ([ebcbfe8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/ebcbfe898b7c433061edfcb1a69f70b7b2f0eca9))
+
 # [1.15.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.14.3...v1.15.0) (2026-06-14)
 
 
