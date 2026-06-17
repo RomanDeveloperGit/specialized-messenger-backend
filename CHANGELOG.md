@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.1...v1.15.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* fix tech and business logic ([5cd8306](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/5cd8306e74b1b3af4e84dd4e43f5339d1a68df5f))
+
 ## [1.15.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.0...v1.15.1) (2026-06-16)
 
 
