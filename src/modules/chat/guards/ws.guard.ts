@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 
 import { AuthorizedSocket, RoomedSocket } from '../chat.types';
 
-const isAuthorizedSocket = (socket: Socket): socket is AuthorizedSocket => {
+export const isAuthorizedSocket = (socket: Socket): socket is AuthorizedSocket => {
   return !!socket.data.user;
 };
 
@@ -24,7 +24,7 @@ export class AuthorizedSocketGuard implements CanActivate {
   }
 }
 
-const isRoomedSocket = (socket: Socket): socket is RoomedSocket => {
+export const isRoomedSocket = (socket: Socket): socket is RoomedSocket => {
   return !!socket.data.currentConversation;
 };
 

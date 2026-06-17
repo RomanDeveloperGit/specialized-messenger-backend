@@ -29,7 +29,7 @@ import {
   ConversationParticipantRemovedEvent,
 } from './dto/events.dto';
 import { FromClientJoinConversationEventBody, FromClientSendMessageEventBody } from './dto/ws.dto';
-import { AuthorizedSocketGuard, RoomedSocketGuard } from './guards/ws.guard';
+import { AuthorizedSocketGuard, isRoomedSocket, RoomedSocketGuard } from './guards/ws.guard';
 
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
 @WebSocketGateway()
@@ -118,7 +118,7 @@ export class ChatGateway {
   emitActiveConversationUpdate(conversationId: string) {
     this.server
       .to(`${WS_CONVERSATION_ROOM_PREFIX}:${conversationId}`)
-      .emit('from-server:activeConversation:update');
+      .emit('from-server:activeConversation.update');
   }
 
   @UseGuards(AuthorizedSocketGuard)
@@ -158,9 +158,9 @@ export class ChatGateway {
   }
 
   private leaveConversation(client: RoomedSocket) {
-    client.leave(`${WS_CONVERSATION_ROOM_PREFIX}:${client.data.currentConversation.id}`);
+    client.leave(`${WS_CONVERSATION_ROOM_PREFIX}:${client.data.currentConversation.publicId}`);
 
-    delete (client as any).data.currentConversation;
+    delete (client as any)?.data?.currentConversation;
   }
 
   @UseGuards(RoomedSocketGuard)
@@ -210,10 +210,9 @@ export class ChatGateway {
       ) ?? new Set<string>();
 
     for (const socketId of socketIds) {
-      const participantClient = this.server.sockets.sockets.get(socketId) as
-        | RoomedSocket
-        | undefined;
-      if (!participantClient) continue;
+      const participantClient = this.server.sockets.sockets.get(socketId);
+
+      if (!participantClient || !isRoomedSocket(participantClient)) continue;
 
       participantClient.data.currentConversation.participantUserIds = participantUserIds;
     }
@@ -230,18 +229,30 @@ export class ChatGateway {
     conversation,
     removedParticipantUserId,
   }: ConversationParticipantRemovedEvent) {
-    const participantClient = this.server.sockets.sockets.get(
-      `${WS_PERSONAL_USER_ROOM_PREFIX}:${removedParticipantUserId}`,
-    ) as RoomedSocket;
+    // множество сокетов может быть, т.к. допускаем несколько открытых вкладок
+    const socketIds =
+      this.server.sockets.adapter.rooms.get(
+        `${WS_PERSONAL_USER_ROOM_PREFIX}:${removedParticipantUserId}`,
+      ) ?? new Set<string>();
 
-    this.leaveConversation(participantClient);
+    for (const socketId of socketIds) {
+      const participantClient = socketId ? this.server.sockets.sockets.get(socketId) : undefined;
 
-    participantClient.emit('from-server:conversations:delete', {
-      conversationId: conversation.publicId,
-    });
+      if (participantClient) {
+        if (
+          participantClient.rooms.has(`${WS_CONVERSATION_ROOM_PREFIX}:${conversation.publicId}`) &&
+          isRoomedSocket(participantClient)
+        ) {
+          this.leaveConversation(participantClient);
+        }
+
+        participantClient.emit('from-server:conversations:delete', {
+          conversationId: conversation.publicId,
+        });
+      }
+    }
 
     this.emitConversationsUpdate([removedParticipantUserId]);
-
     this.handleParticipantsUpdated(conversation);
   }
 }

@@ -310,6 +310,12 @@ export class ChatService {
 
     return new Conversation({
       ...conversation,
+      participants: [...conversation.participants].sort((a, b) => {
+        if (a.role.name === ConversationParticipantRoleName.OWNER) return -1;
+        if (b.role.name === ConversationParticipantRoleName.OWNER) return 1;
+
+        return 0;
+      }),
       messages: [...conversation.messages].reverse(),
     });
   }
@@ -442,16 +448,14 @@ export class ChatService {
     }
 
     const newParticipantUserIds = await this.userService.getIdsByPublicIds(userPublicIds);
-    const newParticipantUserIdDictionary = Object.fromEntries(
-      newParticipantUserIds.map((id) => [id, true]),
-    );
+    const newParticipantUserIdsSet = new Set(newParticipantUserIds);
 
     if (newParticipantUserIds.length !== userPublicIds.length) {
       throw new BadRequestException({ code: ERROR_INVALID_PARTICIPANTS });
     }
 
-    const existingParticipant = conversation.participants.find(
-      (participant) => newParticipantUserIdDictionary[participant.userId.toString()],
+    const existingParticipant = conversation.participants.find((participant) =>
+      newParticipantUserIdsSet.has(participant.userId.toString()),
     );
 
     if (existingParticipant) {
