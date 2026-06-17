@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.2...v1.15.3) (2026-06-17)
+
+
+### Bug Fixes
+
+* **socket:** fix remove conversation event ([7cbd582](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/7cbd582e2abe3990d281f2c66d3534df194d9f8c))
+
 ## [1.15.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.1...v1.15.2) (2026-06-17)
 
 
