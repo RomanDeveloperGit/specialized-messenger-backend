@@ -246,7 +246,7 @@ export class ChatGateway {
           this.leaveConversation(participantClient);
         }
 
-        participantClient.emit('from-server:conversations:delete', {
+        participantClient.emit('from-server:conversations.remove', {
           conversationId: conversation.publicId,
         });
       }

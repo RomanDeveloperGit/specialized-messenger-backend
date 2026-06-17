@@ -23,7 +23,7 @@ export interface FromServerNewMessageEventBody {
   message: Message;
 }
 
-export interface FromServerConversationsDeleteEventBody {
+export interface FromServerConversationsRemoveEventBody {
   conversationId: PublicId;
 }
 

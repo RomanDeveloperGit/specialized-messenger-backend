@@ -4,7 +4,7 @@ import { MessageTypeName } from '@/shared/modules/generated/prisma/enums';
 import {
   FromClientJoinConversationEventBody,
   FromClientSendMessageEventBody,
-  FromServerConversationsDeleteEventBody,
+  FromServerConversationsRemoveEventBody,
   FromServerNewMessageEventBody,
   FromServerUserOfflineEventBody,
   FromServerUserOnlineEventBody,
@@ -67,7 +67,7 @@ export type WSClientToServerEventsKeys = keyof WSClientToServerEvents;
 export interface WSServerToClientEvents {
   'from-server:message.new': (data: FromServerNewMessageEventBody) => void;
   'from-server:conversations.update': (data: void) => void;
-  'from-server:conversations:delete': (data: FromServerConversationsDeleteEventBody) => void;
+  'from-server:conversations.remove': (data: FromServerConversationsRemoveEventBody) => void;
   'from-server:activeConversation.update': (data: void) => void;
   'from-server:user.online': (data: FromServerUserOnlineEventBody) => void;
   'from-server:user.offline': (data: FromServerUserOfflineEventBody) => void;
