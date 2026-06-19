@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.3...v1.16.0) (2026-06-19)
+
+
+### Features
+
+* **chat:** add removed participants property in conversation DTO ([f228657](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/f228657216d40de5c82a5ab1b1159b9850f912f0))
+
 ## [1.15.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.15.2...v1.15.3) (2026-06-17)
 
 
