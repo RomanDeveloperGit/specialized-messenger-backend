@@ -25,6 +25,7 @@ import {
   MessageContent,
   PRELOAD_MESSAGES_COUNT,
 } from './chat.constants';
+import { sortParticipants, splitParticipants } from './chat.utils';
 import { AddConversationParticipantsRequest } from './dto/add-conversation-participants.dto';
 import { Conversation } from './dto/conversation.dto';
 import { CreateConversationRequest } from './dto/create-conversation.dto';
@@ -182,6 +183,7 @@ export class ChatService {
 
     const conversation = new Conversation({
       ...rawConversation,
+      removedParticipants: [],
       messages: [...rawConversation.messages].reverse(),
     });
 
@@ -205,9 +207,6 @@ export class ChatService {
       },
       include: {
         participants: {
-          where: {
-            leavedAt: null,
-          },
           include: {
             user: {
               include: {
@@ -227,14 +226,7 @@ export class ChatService {
               },
             },
           },
-          orderBy: [
-            {
-              createdAt: 'desc',
-            },
-            {
-              id: 'desc',
-            },
-          ],
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
           take: PRELOAD_MESSAGES_COUNT,
         },
       },
@@ -243,13 +235,18 @@ export class ChatService {
       },
     });
 
-    return conversations.map(
-      (conversation) =>
-        new Conversation({
-          ...conversation,
-          messages: [...conversation.messages].reverse(),
-        }),
-    );
+    return conversations.map((conversation) => {
+      const { activeParticipants, removedParticipants } = splitParticipants(
+        conversation.participants,
+      );
+
+      return new Conversation({
+        ...conversation,
+        participants: sortParticipants(activeParticipants),
+        removedParticipants,
+        messages: [...conversation.messages].reverse(),
+      });
+    });
   }
 
   async getConversationByPublicId(
@@ -268,9 +265,6 @@ export class ChatService {
       },
       include: {
         participants: {
-          where: {
-            leavedAt: null,
-          },
           include: {
             user: {
               include: {
@@ -290,14 +284,7 @@ export class ChatService {
               },
             },
           },
-          orderBy: [
-            {
-              createdAt: 'desc',
-            },
-            {
-              id: 'desc',
-            },
-          ],
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         },
       },
     });
@@ -308,14 +295,14 @@ export class ChatService {
       });
     }
 
+    const { activeParticipants, removedParticipants } = splitParticipants(
+      conversation.participants,
+    );
+
     return new Conversation({
       ...conversation,
-      participants: [...conversation.participants].sort((a, b) => {
-        if (a.role.name === ConversationParticipantRoleName.OWNER) return -1;
-        if (b.role.name === ConversationParticipantRoleName.OWNER) return 1;
-
-        return 0;
-      }),
+      participants: sortParticipants(activeParticipants),
+      removedParticipants,
       messages: [...conversation.messages].reverse(),
     });
   }

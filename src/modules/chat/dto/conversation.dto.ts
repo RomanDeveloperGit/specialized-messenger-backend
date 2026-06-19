@@ -41,6 +41,10 @@ type PopulatedConversation = ConversationGetPayload<{
   include: typeof conversationInclude;
 }>;
 
+type RawConversation = PopulatedConversation & {
+  removedParticipants: PopulatedConversation['participants'];
+};
+
 export class Conversation implements Omit<_Conversation, 'id' | 'typeId'> {
   @Expose()
   id: Id;
@@ -71,17 +75,26 @@ export class Conversation implements Omit<_Conversation, 'id' | 'typeId'> {
 
   @Expose()
   @ApiProperty({
+    type: [ConversationParticipant],
+  })
+  removedParticipants: ConversationParticipant[];
+
+  @Expose()
+  @ApiProperty({
     type: [Message],
   })
   messages: Message[];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor({ typeId, ...conversation }: PopulatedConversation) {
+  constructor({ typeId, ...conversation }: RawConversation) {
     Object.assign(this, {
       ...conversation,
       id: conversation.id.toString(),
       type: new ConversationType(conversation.type),
       participants: conversation.participants.map(
+        (participant) => new ConversationParticipant(participant),
+      ),
+      removedParticipants: conversation.removedParticipants.map(
         (participant) => new ConversationParticipant(participant),
       ),
       messages: conversation.messages.map((message) => new Message(message)),
