@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.17.1...v1.18.0) (2026-06-20)
+
+
+### Features
+
+* **push-subscription:** add delete method ([da81169](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/da811693dd77ad6492ce489a5342ff4ac2b9f0ba))
+
 ## [1.17.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.17.0...v1.17.1) (2026-06-20)
 
 
