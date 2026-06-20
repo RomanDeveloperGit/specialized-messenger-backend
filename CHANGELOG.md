@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.17.0...v1.17.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* add user service in push subscription providers ([d724ef4](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/d724ef461d737c3493b0b6aaf320741441565c31))
+
 # [1.17.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.16.0...v1.17.0) (2026-06-20)
 
 
