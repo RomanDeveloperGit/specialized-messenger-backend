@@ -62,6 +62,12 @@ export class PushSubscriptionService implements OnModuleInit {
     return new PushSubscription(subscription);
   }
 
+  async delete(userId: Id, endpoint: string) {
+    await this.prismaService.pushSubscription.deleteMany({
+      where: { userId: BigInt(userId), endpoint },
+    });
+  }
+
   async getActiveSubscriptionsByUserId(userId: Id) {
     const subscriptions = await this.prismaService.pushSubscription.findMany({
       where: {
@@ -74,19 +80,6 @@ export class PushSubscriptionService implements OnModuleInit {
     });
 
     return subscriptions.map((subscription) => new PushSubscription(subscription));
-  }
-
-  private async markAsExpired(subscriptionId: Id) {
-    const { id: expiredStatusId } =
-      await this.prismaService.pushSubscriptionStatus.findUniqueOrThrow({
-        where: { name: PushSubscriptionStatusName.EXPIRED },
-        select: { id: true },
-      });
-
-    await this.prismaService.pushSubscription.update({
-      where: { id: BigInt(subscriptionId) },
-      data: { statusId: expiredStatusId },
-    });
   }
 
   async sendToUser(userId: Id, payload: PushNotificationPayload) {
@@ -120,8 +113,21 @@ export class PushSubscriptionService implements OnModuleInit {
       const statusCode = (error as { statusCode?: number }).statusCode;
 
       if (statusCode === 404 || statusCode === 410) {
-        this.markAsExpired(subscription.id);
+        await this.markAsExpired(subscription.id);
       }
     }
+  }
+
+  private async markAsExpired(subscriptionId: Id) {
+    const { id: expiredStatusId } =
+      await this.prismaService.pushSubscriptionStatus.findUniqueOrThrow({
+        where: { name: PushSubscriptionStatusName.EXPIRED },
+        select: { id: true },
+      });
+
+    await this.prismaService.pushSubscription.update({
+      where: { id: BigInt(subscriptionId) },
+      data: { statusId: expiredStatusId },
+    });
   }
 }

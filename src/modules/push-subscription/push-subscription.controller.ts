@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth } from '@nestjs/swagger';
 
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthorizedRequest } from '../auth/auth.types';
 import { CreatePushSubscriptionRequest } from './dto/create-push-subscription.dto';
+import { DeletePushSubscriptionQuery } from './dto/delete-push-subscription.dto';
 import { PushSubscriptionService } from './push-subscription.service';
 
 @Controller('push-subscriptions')
@@ -31,10 +32,10 @@ export class PushSubscriptionController {
     return this.pushSubscriptionService.getActiveSubscriptionsByUserId(req.user.id);
   }
 
-  // @Delete('/:id')
-  // @ApiBasicAuth()
-  // @UseGuards(AuthGuard)
-  // async delete(@Req() req: AuthorizedRequest, @Param('id') id: string) {
-  //   return this.pushSubscriptionService.delete(req.user.id, id);
-  // }
+  @Delete()
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
+  async delete(@Req() req: AuthorizedRequest, @Query() query: DeletePushSubscriptionQuery) {
+    return this.pushSubscriptionService.delete(req.user.id, query.endpoint);
+  }
 }
