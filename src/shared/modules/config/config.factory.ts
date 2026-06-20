@@ -10,5 +10,8 @@ export const configFactory: ConfigFactory = () => {
     hasDocs: process.env.HAS_DOCS === 'true',
     databaseUrl: String(process.env.DATABASE_URL),
     passwordHashSalt: Number(process.env.PASSWORD_HASH_SALT),
+    vapidSubject: String(process.env.VAPID_SUBJECT),
+    vapidPublicKey: String(process.env.VAPID_PUBLIC_KEY),
+    vapidPrivateKey: String(process.env.VAPID_PRIVATE_KEY),
   };
 };

@@ -8,4 +8,7 @@ export const CONFIG_VALIDATION_SCHEMA = Joi.object({
   HAS_DOCS: Joi.boolean().required(),
   DATABASE_URL: Joi.string().required(),
   PASSWORD_HASH_SALT: Joi.number().positive().required(),
+  VAPID_SUBJECT: Joi.string().required(),
+  VAPID_PUBLIC_KEY: Joi.string().required(),
+  VAPID_PRIVATE_KEY: Joi.string().required(),
 });

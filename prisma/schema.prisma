@@ -46,10 +46,44 @@ model User {
   createdAt  DateTime  @default(now()) @db.Timestamptz
   updatedAt  DateTime  @updatedAt @db.Timestamptz
 
-  role            UserRole                  @relation(fields: [roleId], references: [id])
-  sentInvitations Invitation[]
-  participants    ConversationParticipant[]
-  messages        Message[]
+  role              UserRole                  @relation(fields: [roleId], references: [id])
+  sentInvitations   Invitation[]
+  participants      ConversationParticipant[]
+  messages          Message[]
+  pushSubscriptions PushSubscription[]
+}
+
+enum PushSubscriptionStatusName {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+model PushSubscriptionStatus {
+  id        BigInt                     @id @db.BigInt
+  name      PushSubscriptionStatusName @unique
+  createdAt DateTime                   @default(now()) @db.Timestamptz
+
+  pushSubscriptions PushSubscription[]
+}
+
+model PushSubscription {
+  id             BigInt    @id @default(autoincrement()) @db.BigInt
+  publicId       String    @unique @db.Uuid
+  userId         BigInt    @db.BigInt
+  statusId       BigInt    @db.BigInt
+  endpoint       String    @unique @db.VarChar(500)
+  p256dh         String    @db.VarChar(255)
+  auth           String    @db.VarChar(255)
+  expirationTime DateTime? @db.Timestamptz
+  createdAt      DateTime  @default(now()) @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @db.Timestamptz
+
+  user   User                   @relation(fields: [userId], references: [id])
+  status PushSubscriptionStatus @relation(fields: [statusId], references: [id])
+
+  @@index([userId])
+  @@index([statusId])
 }
 
 enum InvitationStatusName {

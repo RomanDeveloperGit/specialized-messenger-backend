@@ -5,4 +5,7 @@ export interface Config {
   hasDocs: boolean;
   databaseUrl: string;
   passwordHashSalt: number;
+  vapidSubject: string;
+  vapidPublicKey: string;
+  vapidPrivateKey: string;
 }
