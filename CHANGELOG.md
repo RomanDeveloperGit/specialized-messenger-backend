@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.18.0...v1.18.1) (2026-06-21)
+
+
+### Bug Fixes
+
+* **push-subscription:** add unsubscribing ([c93dcd0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/c93dcd06235d8f52ec610dfe65cc9d2185cd6041))
+
 # [1.18.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.17.1...v1.18.0) (2026-06-20)
 
 
