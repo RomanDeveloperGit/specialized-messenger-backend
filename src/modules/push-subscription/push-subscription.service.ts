@@ -11,6 +11,7 @@ import { PushSubscriptionStatusName } from '@/shared/modules/generated/prisma/cl
 import { PrismaService } from '@/shared/modules/prisma';
 
 import { CreatePushSubscriptionRequest } from './dto/create-push-subscription.dto';
+import { MarkAsUnsubscribedPushSubscriptionRequest } from './dto/mark-as-unsubscribed-push-subscription.dto';
 import { PushSubscription } from './dto/push-subscription.dto';
 @Injectable()
 export class PushSubscriptionService implements OnModuleInit {
@@ -62,13 +63,31 @@ export class PushSubscriptionService implements OnModuleInit {
     return new PushSubscription(subscription);
   }
 
-  async delete(userId: Id, endpoint: string) {
-    await this.prismaService.pushSubscription.deleteMany({
-      where: { userId: BigInt(userId), endpoint },
+  async markAsUnsubscribed(data: MarkAsUnsubscribedPushSubscriptionRequest) {
+    const { id: unsubscribedStatusId } =
+      await this.prismaService.pushSubscriptionStatus.findUniqueOrThrow({
+        where: { name: PushSubscriptionStatusName.UNSUBSCRIBED },
+        select: { id: true },
+      });
+
+    const subscription = await this.prismaService.pushSubscription.update({
+      where: {
+        endpoint: data.endpoint,
+        p256dh: data.keys.p256dh,
+        auth: data.keys.auth,
+      },
+      data: {
+        statusId: unsubscribedStatusId,
+      },
+      include: {
+        status: true,
+      },
     });
+
+    return new PushSubscription(subscription);
   }
 
-  async getActiveSubscriptionsByUserId(userId: Id) {
+  private async getActiveSubscriptionsByUserId(userId: Id) {
     const subscriptions = await this.prismaService.pushSubscription.findMany({
       where: {
         userId: BigInt(userId),
