@@ -1,3 +1,15 @@
+# [1.19.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.18.1...v1.19.0) (2026-06-23)
+
+
+### Bug Fixes
+
+* **dtos:** add properties ([32d1e42](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/32d1e42ed23666f0f02d330ea5365466fd49d00f))
+
+
+### Features
+
+* add notification status for user entity and user agent for subscriptions ([3b636bc](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/3b636bcb00ae0590ff053c8a7ebea0043fde6ba2))
+
 ## [1.18.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.18.0...v1.18.1) (2026-06-21)
 
 
