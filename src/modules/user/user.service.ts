@@ -10,6 +10,7 @@ import { PrismaService } from '@/shared/modules/prisma';
 
 import { CreateUserRequest } from './dto/create-user.dto';
 import { GetUserByCredentialsRequest } from './dto/get-user-by-credentials.dto';
+import { UpdateNotificationsStatusRequest } from './dto/update-notifications-status.dto';
 import { User } from './dto/user.dto';
 
 @Injectable()
@@ -113,6 +114,20 @@ export class UserService {
     });
 
     return new User(user);
+  }
+
+  async updateNotifictionsStatus(
+    userId: Id,
+    { isNotificationsEnabled }: UpdateNotificationsStatusRequest,
+  ) {
+    return await this.prismaService.user.update({
+      where: {
+        id: BigInt(userId),
+      },
+      data: {
+        isNotificationsEnabled,
+      },
+    });
   }
 
   // этот метод в основном для того случая, когда сервак упал, а пользователи не закрыли соединение => висят "онлайн"

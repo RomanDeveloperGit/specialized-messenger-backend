@@ -34,17 +34,18 @@ model UserRole {
 }
 
 model User {
-  id         BigInt    @id @default(autoincrement()) @db.BigInt
-  publicId   String    @unique @db.Uuid
-  firstName  String    @db.VarChar(100)
-  lastName   String    @db.VarChar(100)
-  login      String    @unique @db.VarChar(255)
-  password   String    @db.VarChar(255)
-  roleId     BigInt    @db.BigInt
-  isOnline   Boolean   @default(false)
-  lastSeenAt DateTime? @db.Timestamptz
-  createdAt  DateTime  @default(now()) @db.Timestamptz
-  updatedAt  DateTime  @updatedAt @db.Timestamptz
+  id                     BigInt    @id @default(autoincrement()) @db.BigInt
+  publicId               String    @unique @db.Uuid
+  firstName              String    @db.VarChar(100)
+  lastName               String    @db.VarChar(100)
+  login                  String    @unique @db.VarChar(255)
+  password               String    @db.VarChar(255)
+  roleId                 BigInt    @db.BigInt
+  isOnline               Boolean   @default(false)
+  isNotificationsEnabled Boolean   @default(false)
+  lastSeenAt             DateTime? @db.Timestamptz
+  createdAt              DateTime  @default(now()) @db.Timestamptz
+  updatedAt              DateTime  @updatedAt @db.Timestamptz
 
   role              UserRole                  @relation(fields: [roleId], references: [id])
   sentInvitations   Invitation[]
@@ -75,6 +76,7 @@ model PushSubscription {
   endpoint       String    @unique @db.VarChar(500)
   p256dh         String    @db.VarChar(255)
   auth           String    @db.VarChar(255)
+  userAgent      String    @db.VarChar(255)
   expirationTime DateTime? @db.Timestamptz
   createdAt      DateTime  @default(now()) @db.Timestamptz
   updatedAt      DateTime  @updatedAt @db.Timestamptz

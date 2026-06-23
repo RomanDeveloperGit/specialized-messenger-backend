@@ -32,7 +32,7 @@ export class PushSubscriptionService implements OnModuleInit {
     return this.configService.get('vapidPublicKey');
   }
 
-  async create(userId: Id, data: CreatePushSubscriptionRequest) {
+  async create(userId: Id, data: CreatePushSubscriptionRequest, userAgent: string) {
     const { id: activeStatusId } =
       await this.prismaService.pushSubscriptionStatus.findUniqueOrThrow({
         where: { name: PushSubscriptionStatusName.ACTIVE },
@@ -45,6 +45,7 @@ export class PushSubscriptionService implements OnModuleInit {
       p256dh: data.keys.p256dh,
       auth: data.keys.auth,
       expirationTime: data.expirationTime ? new Date(data.expirationTime) : null,
+      userAgent,
     };
 
     const subscription = await this.prismaService.pushSubscription.upsert({
@@ -61,6 +62,20 @@ export class PushSubscriptionService implements OnModuleInit {
     });
 
     return new PushSubscription(subscription);
+  }
+
+  async getActiveSubscriptionsByUserId(userId: Id) {
+    const subscriptions = await this.prismaService.pushSubscription.findMany({
+      where: {
+        userId: BigInt(userId),
+        status: { name: PushSubscriptionStatusName.ACTIVE },
+      },
+      include: {
+        status: true,
+      },
+    });
+
+    return subscriptions.map((subscription) => new PushSubscription(subscription));
   }
 
   async markAsUnsubscribed(data: MarkAsUnsubscribedPushSubscriptionRequest) {
@@ -85,20 +100,6 @@ export class PushSubscriptionService implements OnModuleInit {
     });
 
     return new PushSubscription(subscription);
-  }
-
-  private async getActiveSubscriptionsByUserId(userId: Id) {
-    const subscriptions = await this.prismaService.pushSubscription.findMany({
-      where: {
-        userId: BigInt(userId),
-        status: { name: PushSubscriptionStatusName.ACTIVE },
-      },
-      include: {
-        status: true,
-      },
-    });
-
-    return subscriptions.map((subscription) => new PushSubscription(subscription));
   }
 
   async sendToUser(userId: Id, payload: PushNotificationPayload) {

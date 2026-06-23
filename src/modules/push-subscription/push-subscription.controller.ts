@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth } from '@nestjs/swagger';
 
 import { AuthGuard } from '../auth/auth.guard';
@@ -21,8 +21,19 @@ export class PushSubscriptionController {
   @Post()
   @ApiBasicAuth()
   @UseGuards(AuthGuard)
-  async create(@Req() req: AuthorizedRequest, @Body() body: CreatePushSubscriptionRequest) {
-    return this.pushSubscriptionService.create(req.user.id, body);
+  async create(
+    @Req() req: AuthorizedRequest,
+    @Body() body: CreatePushSubscriptionRequest,
+    @Headers('User-Agent') userAgent: string,
+  ) {
+    return this.pushSubscriptionService.create(req.user.id, body, userAgent);
+  }
+
+  @Get()
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
+  async getActiveSubscriptionsByUserId(@Req() req: AuthorizedRequest) {
+    return this.pushSubscriptionService.getActiveSubscriptionsByUserId(req.user.id);
   }
 
   @Patch('mark-as-unsubscribed')
