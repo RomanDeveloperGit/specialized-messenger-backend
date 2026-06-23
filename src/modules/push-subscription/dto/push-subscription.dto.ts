@@ -39,6 +39,9 @@ export class PushSubscription implements Omit<_PushSubscription, 'id' | 'userId'
   endpoint: string;
 
   @Expose()
+  userAgent: string;
+
+  @Expose()
   p256dh: string;
 
   @Expose()

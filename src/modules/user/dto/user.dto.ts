@@ -42,6 +42,9 @@ export class User implements Omit<_User, 'id' | 'password' | 'roleId'> {
   isOnline: boolean;
 
   @Expose()
+  isNotificationsEnabled: boolean;
+
+  @Expose()
   lastSeenAt: Date;
 
   @Expose()
