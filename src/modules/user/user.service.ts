@@ -120,7 +120,7 @@ export class UserService {
     userId: Id,
     { isNotificationsEnabled }: UpdateNotificationsStatusRequest,
   ) {
-    return await this.prismaService.user.update({
+    await this.prismaService.user.update({
       where: {
         id: BigInt(userId),
       },

@@ -20,7 +20,6 @@ export class UserController {
   }
 
   @Patch('/notifications')
-  @AuthOptions({ checkAdminRole: true })
   @ApiBasicAuth()
   @UseGuards(AuthGuard)
   async updateNotifictionsStatus(
