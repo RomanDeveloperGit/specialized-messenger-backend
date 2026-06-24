@@ -11,6 +11,7 @@ import { PushSubscriptionStatusName } from '@/shared/modules/generated/prisma/cl
 import { PrismaService } from '@/shared/modules/prisma';
 
 import { CreatePushSubscriptionRequest } from './dto/create-push-subscription.dto';
+import { GetPushSubscriptionByDataQuery } from './dto/get-push-subscription-by-data.dto';
 import { MarkAsUnsubscribedPushSubscriptionRequest } from './dto/mark-as-unsubscribed-push-subscription.dto';
 import { PushSubscription } from './dto/push-subscription.dto';
 @Injectable()
@@ -76,6 +77,23 @@ export class PushSubscriptionService implements OnModuleInit {
     });
 
     return subscriptions.map((subscription) => new PushSubscription(subscription));
+  }
+
+  async getByData(userId: Id, query: GetPushSubscriptionByDataQuery) {
+    const subscription = await this.prismaService.pushSubscription.findFirst({
+      where: {
+        userId: BigInt(userId),
+        endpoint: query.endpoint,
+        p256dh: query.p256dh,
+        auth: query.auth,
+        expirationTime: query.expirationTime ? new Date(query.expirationTime) : null,
+      },
+      include: {
+        status: true,
+      },
+    });
+
+    return subscription ? new PushSubscription(subscription) : null;
   }
 
   async markAsUnsubscribed(data: MarkAsUnsubscribedPushSubscriptionRequest) {
@@ -149,5 +167,31 @@ export class PushSubscriptionService implements OnModuleInit {
       where: { id: BigInt(subscriptionId) },
       data: { statusId: expiredStatusId },
     });
+  }
+
+  async getAllActiveSubscriptions() {
+    const subscriptions = await this.prismaService.pushSubscription.findMany({
+      where: {
+        status: { name: PushSubscriptionStatusName.ACTIVE },
+      },
+      include: {
+        status: true,
+      },
+    });
+
+    return subscriptions.map((subscription) => new PushSubscription(subscription));
+  }
+
+  async sendToAll(): Promise<void> {
+    const subscriptions = await this.getAllActiveSubscriptions();
+
+    await Promise.all(
+      subscriptions.map((subscription) =>
+        this.sendToSubscription(subscription, {
+          title: 'Новое сообщение',
+          body: 'Роман: алё нафиг',
+        }),
+      ),
+    );
   }
 }

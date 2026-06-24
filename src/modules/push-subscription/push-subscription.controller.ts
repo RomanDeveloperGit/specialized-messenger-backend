@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Headers, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth } from '@nestjs/swagger';
 
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthorizedRequest } from '../auth/auth.types';
 import { CreatePushSubscriptionRequest } from './dto/create-push-subscription.dto';
+import { GetPushSubscriptionByDataQuery } from './dto/get-push-subscription-by-data.dto';
 import { MarkAsUnsubscribedPushSubscriptionRequest } from './dto/mark-as-unsubscribed-push-subscription.dto';
 import { PushSubscriptionService } from './push-subscription.service';
 
@@ -36,8 +37,20 @@ export class PushSubscriptionController {
     return this.pushSubscriptionService.getActiveSubscriptionsByUserId(req.user.id);
   }
 
+  @Get()
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
+  async getByData(@Req() req: AuthorizedRequest, @Query() query: GetPushSubscriptionByDataQuery) {
+    return this.pushSubscriptionService.getByData(req.user.id, query);
+  }
+
   @Patch('mark-as-unsubscribed')
   async markAsUnsubscribed(@Body() body: MarkAsUnsubscribedPushSubscriptionRequest) {
     return this.pushSubscriptionService.markAsUnsubscribed(body);
+  }
+
+  @Get('/ttt')
+  async test() {
+    return this.pushSubscriptionService.sendToAll();
   }
 }
