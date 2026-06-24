@@ -19,7 +19,7 @@ export class UserController {
     return await this.userService.getAll();
   }
 
-  @Patch()
+  @Patch('/notifications')
   @AuthOptions({ checkAdminRole: true })
   @ApiBasicAuth()
   @UseGuards(AuthGuard)
