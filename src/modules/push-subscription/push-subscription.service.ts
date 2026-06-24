@@ -80,7 +80,7 @@ export class PushSubscriptionService implements OnModuleInit {
   }
 
   async getByData(userId: Id, query: GetPushSubscriptionByDataQuery) {
-    const subscription = await this.prismaService.pushSubscription.findFirst({
+    const subscription = await this.prismaService.pushSubscription.findFirstOrThrow({
       where: {
         userId: BigInt(userId),
         endpoint: query.endpoint,
@@ -93,7 +93,7 @@ export class PushSubscriptionService implements OnModuleInit {
       },
     });
 
-    return subscription ? new PushSubscription(subscription) : null;
+    return new PushSubscription(subscription);
   }
 
   async markAsUnsubscribed(data: MarkAsUnsubscribedPushSubscriptionRequest) {
