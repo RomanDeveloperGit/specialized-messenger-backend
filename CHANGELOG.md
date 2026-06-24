@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.19.1...v1.20.0) (2026-06-24)
+
+
+### Features
+
+* **push-subscription:** add endpoint for get by data and user id ([6bedd77](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/6bedd770b25d67ef5aa192ac8054587d7cfbefd3))
+
 ## [1.19.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.19.0...v1.19.1) (2026-06-24)
 
 
