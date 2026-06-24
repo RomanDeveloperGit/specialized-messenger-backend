@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.0...v1.20.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **get-push-subscription-by-data:** fix expiration data type ([a522f29](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/a522f295a31ada5c054e09c5bb1c610fab2b7e1c))
+
 # [1.20.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.19.1...v1.20.0) (2026-06-24)
 
 
