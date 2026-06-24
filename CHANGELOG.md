@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.1...v1.20.2) (2026-06-24)
+
+
+### Bug Fixes
+
+* **service/push-subscription:** fix response ([577c489](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/577c489e42df705b21935eefb249f1559f7ebe84))
+
 ## [1.20.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.0...v1.20.1) (2026-06-24)
 
 
