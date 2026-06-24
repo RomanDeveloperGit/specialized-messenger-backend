@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.2...v1.20.3) (2026-06-24)
+
+
+### Bug Fixes
+
+* **user:** fix service and controller ([03997e7](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/03997e783f78b21c3dc410548179ef621a157c77))
+
 ## [1.20.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.1...v1.20.2) (2026-06-24)
 
 
