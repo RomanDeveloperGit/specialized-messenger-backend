@@ -12,5 +12,5 @@ export class GetPushSubscriptionByDataQuery {
 
   @IsOptional()
   @IsNumber()
-  expirationTime?: number | null;
+  expirationTime?: string | null;
 }
