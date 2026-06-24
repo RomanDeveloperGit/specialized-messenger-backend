@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.19.0...v1.19.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **user:** update path ([d2bd3f8](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/d2bd3f84a4b7f649a532185623979c3c215e1138))
+
 # [1.19.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.18.1...v1.19.0) (2026-06-23)
 
 
