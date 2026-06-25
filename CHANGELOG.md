@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.3...v1.21.0) (2026-06-25)
+
+
+### Features
+
+* **notifications:** add notifications for actions with chat ([23b2570](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/23b2570992c6e80afbe5fc8da70262a0736ea586))
+
 ## [1.20.3](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.20.2...v1.20.3) (2026-06-24)
 
 
