@@ -48,9 +48,4 @@ export class PushSubscriptionController {
   async markAsUnsubscribed(@Body() body: MarkAsUnsubscribedPushSubscriptionRequest) {
     return this.pushSubscriptionService.markAsUnsubscribed(body);
   }
-
-  @Get('/ttt')
-  async test() {
-    return this.pushSubscriptionService.sendToAll();
-  }
 }

@@ -3,9 +3,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { uuidv7 } from 'uuidv7';
 
+import { PushSubscriptionService } from '@/modules/push-subscription/push-subscription.service';
 import { UserService } from '@/modules/user/user.service';
 
 import { Id, PublicId } from '@/shared/libs/ids';
+import { getUserFullName } from '@/shared/libs/user';
 import {
   ConversationParticipantRoleName,
   ConversationTypeName,
@@ -43,6 +45,7 @@ export class ChatService {
     private readonly prismaService: PrismaService,
     private readonly eventEmitter: EventEmitter2,
     private readonly userService: UserService,
+    private readonly pushSubscriptionService: PushSubscriptionService,
   ) {}
 
   async createConversation(
@@ -185,6 +188,14 @@ export class ChatService {
       ...rawConversation,
       removedParticipants: [],
       messages: [...rawConversation.messages].reverse(),
+    });
+
+    const isGroupConversation = conversation.type.name === ConversationTypeName.GROUP;
+
+    this.pushSubscriptionService.sendToUsers(participantUserIds, {
+      title: isGroupConversation
+        ? `Вас добавили в группу "${conversation.name}"`
+        : `${getUserFullName(conversation.participants.at(0)?.user)} создал с вами личный чат`,
     });
 
     this.eventEmitter.emit(
@@ -336,7 +347,7 @@ export class ChatService {
       },
     });
 
-    const [message] = await this.prismaService.$transaction([
+    const [rawMessage] = await this.prismaService.$transaction([
       this.prismaService.message.create({
         data: {
           publicId: uuidv7(),
@@ -347,6 +358,12 @@ export class ChatService {
         },
         include: {
           type: true,
+          conversation: {
+            include: {
+              participants: true,
+              type: true,
+            },
+          },
           author: {
             include: {
               role: true,
@@ -364,7 +381,26 @@ export class ChatService {
       }),
     ]);
 
-    return new Message(message);
+    const message = new Message(rawMessage);
+
+    const isGroupConversation = rawMessage.conversation.type.name === ConversationTypeName.GROUP;
+    const messageText = (message.content as MessageContent<'TEXT'>)?.text || '';
+
+    this.pushSubscriptionService.sendToUsers(
+      rawMessage.conversation.participants
+        .map((participant) => String(participant.userId))
+        .filter((userId) => userId !== String(data.authorUserId)),
+      {
+        title: isGroupConversation
+          ? rawMessage.conversation.name || ''
+          : getUserFullName(rawMessage.author),
+        content: isGroupConversation
+          ? messageText
+          : `${getUserFullName(rawMessage.author)}: ${messageText}`,
+      },
+    );
+
+    return message;
   }
 
   async getRelatedParticipantUserIdsByUserId(initiatorUserId: Id): Promise<Id[]> {
@@ -470,7 +506,9 @@ export class ChatService {
       },
       select: { userId: true },
     });
-    const existingLeftUserIds = new Set(existingLeft.map((p) => p.userId.toString()));
+    const existingLeftUserIds = new Set(
+      existingLeft.map((participant) => participant.userId.toString()),
+    );
 
     const toCreate = newParticipantUserIds.filter((id) => !existingLeftUserIds.has(id));
     const toUpdate = newParticipantUserIds.filter((id) => existingLeftUserIds.has(id));
@@ -523,6 +561,22 @@ export class ChatService {
     const updatedConversation = await this.getConversationByPublicId(
       conversationPublicId,
       initiatorUserId,
+    );
+
+    const participantUserIds = updatedConversation.participants.map((participant) =>
+      String(participant.userId),
+    );
+
+    this.pushSubscriptionService.sendToUsers(newParticipantUserIds, {
+      title: `Вас добавили в группу ${updatedConversation.name}}`,
+    });
+
+    this.pushSubscriptionService.sendToUsers(
+      participantUserIds.filter((userId) => !newParticipantUserIdsSet.has(userId)),
+      {
+        title: updatedConversation.name || '',
+        content: `В группу добавлены новые участники`,
+      },
     );
 
     this.eventEmitter.emit(
@@ -603,9 +657,12 @@ export class ChatService {
       select: { id: true },
     });
 
-    const [{ userId: removedParticipantUserId }] = await this.prismaService.$transaction([
+    const [removedParticipant] = await this.prismaService.$transaction([
       this.prismaService.conversationParticipant.update({
         where: { id: targetParticipant.id },
+        include: {
+          user: true,
+        },
         data: { leavedAt: new Date() },
       }),
       this.prismaService.message.create({
@@ -624,17 +681,28 @@ export class ChatService {
       }),
     ]);
 
+    const removedParticipantUserId = String(removedParticipant.userId);
+
     const updatedConversation = await this.getConversationByPublicId(
       conversationPublicId,
       initiatorUserId,
     );
 
+    this.pushSubscriptionService.sendToUser(removedParticipantUserId, {
+      title: `Вас удалили из группы ${updatedConversation.name}}`,
+    });
+
+    this.pushSubscriptionService.sendToUsers(
+      updatedConversation.participants.map((participant) => String(participant.userId)),
+      {
+        title: updatedConversation.name || '',
+        content: `${getUserFullName(removedParticipant.user)} удалён из группы`,
+      },
+    );
+
     this.eventEmitter.emit(
       CHAT_EVENT.CONVERSATION_PARTICIPANT_REMOVED,
-      new ConversationParticipantRemovedEvent(
-        updatedConversation,
-        removedParticipantUserId.toString(),
-      ),
+      new ConversationParticipantRemovedEvent(updatedConversation, removedParticipantUserId),
     );
 
     return updatedConversation;

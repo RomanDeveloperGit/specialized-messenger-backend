@@ -1,5 +1,4 @@
 export interface PushNotificationPayload {
   title: string;
-  body: string;
-  url?: string;
+  content?: string;
 }

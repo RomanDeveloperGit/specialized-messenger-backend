@@ -123,13 +123,27 @@ export class PushSubscriptionService implements OnModuleInit {
   async sendToUser(userId: Id, payload: PushNotificationPayload) {
     const subscriptions = await this.getActiveSubscriptionsByUserId(userId);
 
-    await Promise.all(
+    await Promise.allSettled(
       subscriptions.map((subscription) => this.sendToSubscription(subscription, payload)),
     );
   }
 
   async sendToUsers(userIds: Id[], payload: PushNotificationPayload): Promise<void> {
-    await Promise.all(userIds.map((userId) => this.sendToUser(userId, payload)));
+    const allSubscriptions = await this.prismaService.pushSubscription.findMany({
+      where: {
+        userId: { in: userIds.map(BigInt) },
+        status: { name: PushSubscriptionStatusName.ACTIVE },
+      },
+      include: {
+        status: true,
+      },
+    });
+
+    await Promise.allSettled(
+      allSubscriptions.map((subscription) =>
+        this.sendToSubscription(new PushSubscription(subscription), payload),
+      ),
+    );
   }
 
   private async sendToSubscription(
@@ -167,31 +181,5 @@ export class PushSubscriptionService implements OnModuleInit {
       where: { id: BigInt(subscriptionId) },
       data: { statusId: expiredStatusId },
     });
-  }
-
-  async getAllActiveSubscriptions() {
-    const subscriptions = await this.prismaService.pushSubscription.findMany({
-      where: {
-        status: { name: PushSubscriptionStatusName.ACTIVE },
-      },
-      include: {
-        status: true,
-      },
-    });
-
-    return subscriptions.map((subscription) => new PushSubscription(subscription));
-  }
-
-  async sendToAll(): Promise<void> {
-    const subscriptions = await this.getAllActiveSubscriptions();
-
-    await Promise.all(
-      subscriptions.map((subscription) =>
-        this.sendToSubscription(subscription, {
-          title: 'Новое сообщение',
-          body: 'Роман: алё нафиг',
-        }),
-      ),
-    );
   }
 }

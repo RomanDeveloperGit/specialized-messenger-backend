@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
+import { PushSubscriptionService } from '@/modules/push-subscription/push-subscription.service';
 import { UserService } from '@/modules/user/user.service';
 
 import { ChatController } from './chat.controller';
@@ -18,6 +19,7 @@ import { ValidateParticipantUserIdsPipe } from './pipes/validate-participant-use
     ChatListener,
     ChatService,
     UserService,
+    PushSubscriptionService,
     AuthorizedSocketGuard,
     RoomedSocketGuard,
     ValidateParticipantUserIdsPipe,
