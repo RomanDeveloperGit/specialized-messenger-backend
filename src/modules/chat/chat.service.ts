@@ -373,7 +373,11 @@ export class ChatService {
           updatedAt: new Date(),
         },
         include: {
-          participants: true,
+          participants: {
+            where: {
+              leavedAt: null,
+            },
+          },
           type: true,
         },
       }),
@@ -564,7 +568,7 @@ export class ChatService {
     );
 
     this.pushSubscriptionService.sendToUsers(newParticipantUserIds, {
-      title: `Вас добавили в группу ${updatedConversation.name}}`,
+      title: `Вас добавили в группу ${updatedConversation.name}`,
     });
 
     this.pushSubscriptionService.sendToUsers(
