@@ -1,3 +1,10 @@
+## [1.21.2](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.21.1...v1.21.2) (2026-06-26)
+
+
+### Bug Fixes
+
+* **notifications:** fix logic ([db64796](https://github.com/RomanDeveloperGit/specialized-messenger-backend/commit/db647962b5e4a7687aa08225526995a0c063b9f5))
+
 ## [1.21.1](https://github.com/RomanDeveloperGit/specialized-messenger-backend/compare/v1.21.0...v1.21.1) (2026-06-26)
 
 
